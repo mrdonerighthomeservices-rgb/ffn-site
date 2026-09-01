@@ -4,17 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Membership & Premium | Fishing Friends Network</title>
-<meta name="description" content="Free to join, always. Premium is $7.99 a month, priced from what it actually costs to run, not copied from other apps.">
+<meta name="description" content="Free to join, always. Paid plans are not open yet. Here is what is planned and what it will cost when it opens.">
 <link rel="canonical" href="https://fishingfriendsnetwork.com/pricing.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Fishing Friends Network">
 <meta property="og:title" content="Membership & Premium | Fishing Friends Network">
-<meta property="og:description" content="Free to join, always. Premium is $7.99 a month, priced from what it actually costs to run, not copied from other apps.">
+<meta property="og:description" content="Free to join, always. Paid plans are not open yet. Here is what is planned and what it will cost when it opens.">
 <meta property="og:image" content="https://fishingfriendsnetwork.com/faith-scene-wide.jpg">
 <meta property="og:url" content="https://fishingfriendsnetwork.com/pricing.html">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Membership & Premium | Fishing Friends Network">
-<meta name="twitter:description" content="Free to join, always. Premium is $7.99 a month, priced from what it actually costs to run, not copied from other apps.">
+<meta name="twitter:description" content="Free to join, always. Paid plans are not open yet. Here is what is planned and what it will cost when it opens.">
 <meta name="twitter:image" content="https://fishingfriendsnetwork.com/faith-scene-wide.jpg">
 
 <link rel="stylesheet" href="ffn.css">
@@ -23,9 +23,9 @@
 @media(min-width:760px){.tiers{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start;}}
 .tier-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:24px 22px;display:flex;flex-direction:column;}
 .tier-card.featured{border:2px solid var(--amber);position:relative;}
-.tier-card.featured::before{content:"Recommended";position:absolute;top:-13px;left:22px;background:var(--amber);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;font-weight:600;}
+.tier-card.featured::before{content:"Coming Soon";position:absolute;top:-13px;left:22px;background:var(--amber);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;font-weight:600;}
 .tier-card.fam{border:2px solid var(--sage);position:relative;}
-.tier-card.fam::before{content:"New";position:absolute;top:-13px;left:22px;background:var(--sage);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;font-weight:600;}
+.tier-card.fam::before{content:"Coming Soon";position:absolute;top:-13px;left:22px;background:var(--sage);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;font-weight:600;}
 .tier-card h3{font-size:1.15rem;margin-bottom:2px;}
 .tier-card .price{font-family:'Fraunces',serif;font-weight:700;font-size:2.1rem;color:var(--teal);margin:8px 0 2px;}
 .tier-card .price span{font-family:'Inter',sans-serif;font-weight:500;font-size:.9rem;color:#6b6a63;}
@@ -34,6 +34,11 @@
 .tier-card li{font-size:.92rem;padding:7px 0;border-top:1px solid var(--line);display:flex;gap:8px;}
 .tier-card li:first-child{border-top:none;}
 .tier-card li::before{content:"✓";color:var(--sage);font-weight:700;flex-shrink:0;}
+.soon-tag{display:inline-block;background:var(--amber);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:3px;font-weight:600;margin:0 0 10px;}
+.notopen{background:var(--parchment);border:2px solid var(--amber);border-radius:8px;padding:22px 24px;margin:0 0 8px;}
+.notopen h2{margin:0 0 8px;font-size:1.25rem;}
+.notopen p{margin:0 0 10px;max-width:66ch;}
+.notopen p:last-child{margin-bottom:0;}
 
 .split{background:var(--parchment);border-radius:8px;padding:26px 24px;margin:32px 0;}
 .bar{display:flex;height:34px;border-radius:5px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#fff;margin-top:14px;}
@@ -76,6 +81,12 @@
 </div></div>
 
 <section class="section">
+  <div class="notopen">
+    <h2>Nothing on this page is for sale yet.</h2>
+    <p>Free membership is open right now and always will be. The paid plans below are not built yet, so there is no way to buy one and no payment is being collected anywhere on this site. This page is here so you can see exactly what is planned and what it will cost when it opens.</p>
+    <p>If a plan below interests you, leave your name at the bottom and we will tell you the day it actually opens. That is the only thing this page asks of you.</p>
+  </div>
+
   <p style="font-size:1.05rem;max-width:64ch;">Priced from what it actually costs FFN to run, plus a fair margin, not copied from what other fishing apps charge.</p>
 
   <div class="tiers">
@@ -99,6 +110,7 @@
     <div class="tier-card featured">
       <h3>Premium</h3>
       <div class="price">$7.99<span> / month</span></div>
+      <div class="soon-tag">Not open yet</div>
       <div class="sub">Roughly 4 to 5 times FFN's real cost to deliver it. Cancel anytime, reverts to Free.</div>
       <ul>
         <li>AI fishing assistant</li>
@@ -108,12 +120,13 @@
         <li>Discussion board &amp; private buddy groups</li>
         <li>+ 9 more, see the full list below</li>
       </ul>
-      <a class="btn solid" href="#signup">Get Premium</a>
+      <a class="btn solid" href="#signup">Tell Me When It Opens</a>
     </div>
 
     <div class="tier-card fam">
       <h3>Family</h3>
       <div class="price">$14.99<span> / month</span></div>
+      <div class="soon-tag">Not open yet</div>
       <div class="sub">One household, one price. Up to two adults and every child living in the household, whatever that household looks like.</div>
       <ul>
         <li>Everything in Premium, for everybody under the roof</li>
@@ -121,12 +134,13 @@
         <li>Priority on the mentor waiting list</li>
         <li>Cheaper than separate Premium memberships</li>
       </ul>
-      <a class="btn" href="#signup">Ask About Family</a>
+      <a class="btn" href="#signup">Tell Me When It Opens</a>
     </div>
 
     <div class="tier-card">
       <h3>Family + Mentoring</h3>
       <div class="price">$24.99<span> / month</span></div>
+      <div class="soon-tag">Not open yet</div>
       <div class="sub">Everything in Family, plus one matched, checked mentor. Billing for mentoring starts the day a real match is made, not the day you sign up.</div>
       <ul>
         <li>One matched, cleared mentor</li>
@@ -134,12 +148,13 @@
         <li>Mentor rechecks funded, on Pennsylvania's clearance renewal cycle</li>
         <li>Funds the shared mentor pool</li>
       </ul>
-      <a class="btn" href="#signup">Ask About Mentoring</a>
+      <a class="btn" href="#signup">Tell Me When It Opens</a>
     </div>
 
     <div class="tier-card">
       <h3>Mentoring</h3>
       <div class="price">$13.99<span> / month</span></div>
+      <div class="soon-tag">Not open yet</div>
       <div class="sub">On top of an individual Premium membership, for a single-adult household. Active only while your child has a matched mentor.</div>
       <ul>
         <li>A matched, checked mentor</li>
@@ -147,7 +162,7 @@
         <li>Ongoing oversight and support</li>
         <li>Funds the shared mentor pool</li>
       </ul>
-      <a class="btn" href="#signup">Ask About Mentoring</a>
+      <a class="btn" href="#signup">Tell Me When It Opens</a>
     </div>
   </div>
 
