@@ -19,6 +19,9 @@
 //   POST /api/signup        create a real member account, set session
 //   POST /api/login         log an existing member in, set session
 //   GET  /api/logout        clear the session cookie
+//   GET  /api/catches       members only -- your own catch log + bests
+//   POST /api/catches       members only -- add one catch
+//   POST /api/delete-catch  members only -- remove one of your own
 //   GET  /api/whoami        is THIS browser really logged in? yes/no
 //
 // Two environment variables are required, set in Netlify (Site
@@ -90,6 +93,39 @@ async function ensureSchema(db) {
       )
     `;
     await db.sql`CREATE UNIQUE INDEX IF NOT EXISTS members_email_idx ON members (lower(email))`;
+
+    // A member's own catch log. Private to that member: never shown publicly,
+    // and never joined to anything that appears on the Lunker Board unless the
+    // member deliberately posts it there. No GPS is stored, ever -- the water
+    // is a name the member types in.
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS catches (
+        id SERIAL PRIMARY KEY,
+        member_id INTEGER NOT NULL,
+        species TEXT NOT NULL,
+        length_in NUMERIC,
+        weight_lb NUMERIC,
+        water TEXT,
+        caught_on DATE,
+        notes TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `;
+    await db.sql`CREATE INDEX IF NOT EXISTS catches_member_idx ON catches (member_id, caught_on DESC)`;
+
+    // Safety test passes. One row per pass, so a member who retakes it and does
+    // better has a history rather than an overwrite. A chapter leader can ask
+    // "is this kid certified" and get a real answer with a date on it.
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS safety_passes (
+        id SERIAL PRIMARY KEY,
+        member_id INTEGER NOT NULL,
+        score INTEGER NOT NULL,
+        total INTEGER NOT NULL,
+        passed_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `;
+    await db.sql`CREATE INDEX IF NOT EXISTS safety_member_idx ON safety_passes (member_id, passed_at DESC)`;
 
     // Seed the starter jokes once, only if the bank is completely empty.
     const existing = await db.sql`SELECT COUNT(*)::int AS n FROM jokes`;
@@ -352,6 +388,122 @@ function handleLogout() {
   ]);
 }
 
+function memberIdFrom(req) {
+  return verifySession(parseCookies(req.headers.get("cookie")).ffn_session);
+}
+
+function num(v, max) {
+  if (v === undefined || v === null || v === "") return null;
+  const n = parseFloat(v);
+  if (isNaN(n) || n < 0 || n > max) return null;
+  return n;
+}
+
+// Records a passing safety test. The score is re-checked here rather than
+// trusted from the browser, because anything the page sends can be faked --
+// a certification that a kid can grant themselves is worth nothing to the
+// parent or the chapter leader relying on it.
+const SAFETY_TOTAL = 10;
+const SAFETY_PASS_MARK = 8;
+
+async function handleSafetyPass(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in to record your safety test." });
+  if (req.method !== "POST") return json(405, { error: "Method not allowed." });
+
+  const body = await readJson(req);
+  if (!body) return json(400, { error: "Bad request." });
+
+  const score = parseInt(body.score, 10);
+  const total = parseInt(body.total, 10);
+  if (isNaN(score) || isNaN(total)) return json(400, { error: "Bad score." });
+  if (total !== SAFETY_TOTAL) return json(400, { error: "Bad score." });
+  if (score < 0 || score > total) return json(400, { error: "Bad score." });
+  if (score < SAFETY_PASS_MARK) return json(400, { error: "That is not a passing score." });
+
+  await db.sql`
+    INSERT INTO safety_passes (member_id, score, total)
+    VALUES (${memberId}, ${score}, ${total})
+  `;
+  return json(200, { ok: true, certified: true });
+}
+
+// Whether a member is safety certified, and when they passed. Used by the
+// member's own pages now, and by chapter leaders before an outing later.
+async function handleSafetyStatus(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(200, { certified: false });
+  const rows = await db.sql`
+    SELECT score, total, passed_at FROM safety_passes
+    WHERE member_id = ${memberId}
+    ORDER BY passed_at DESC LIMIT 1
+  `;
+  if (!rows.length) return json(200, { certified: false });
+  return json(200, { certified: true, ...rows[0] });
+}
+
+// A member's own catch log. Free for every member -- this is not a paid
+// feature. It is deliberately private: a member sees only their own rows.
+async function handleCatches(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in to use your catch log." });
+
+  if (req.method === "GET") {
+    const rows = await db.sql`
+      SELECT id, species, length_in, weight_lb, water, caught_on, notes
+      FROM catches WHERE member_id = ${memberId}
+      ORDER BY caught_on DESC NULLS LAST, id DESC
+    `;
+    // Personal bests, worked out here so every page shows the same numbers.
+    const bests = {};
+    for (const r of rows) {
+      const key = (r.species || "").trim().toLowerCase();
+      if (!key) continue;
+      const b = bests[key] || (bests[key] = { species: r.species, count: 0, length_in: null, weight_lb: null });
+      b.count++;
+      if (r.length_in !== null && (b.length_in === null || Number(r.length_in) > Number(b.length_in))) b.length_in = r.length_in;
+      if (r.weight_lb !== null && (b.weight_lb === null || Number(r.weight_lb) > Number(b.weight_lb))) b.weight_lb = r.weight_lb;
+    }
+    const bestList = Object.values(bests).sort((a, b) => b.count - a.count);
+    return json(200, { catches: rows, bests: bestList, total: rows.length });
+  }
+
+  if (req.method === "POST") {
+    const body = await readJson(req);
+    if (!body) return json(400, { error: "Bad request." });
+    const species = (body.species || "").toString().trim().slice(0, 60);
+    if (!species) return json(400, { error: "What did you catch? Species is the one thing we need." });
+    const length_in = num(body.length_in, 200);
+    const weight_lb = num(body.weight_lb, 2000);
+    const water = (body.water || "").toString().trim().slice(0, 120) || null;
+    const notes = (body.notes || "").toString().trim().slice(0, 500) || null;
+    let caught_on = (body.caught_on || "").toString().trim();
+    if (caught_on && isNaN(new Date(caught_on).getTime())) caught_on = "";
+
+    const rows = await db.sql`
+      INSERT INTO catches (member_id, species, length_in, weight_lb, water, caught_on, notes)
+      VALUES (${memberId}, ${species}, ${length_in}, ${weight_lb}, ${water}, ${caught_on || null}, ${notes})
+      RETURNING id, species, length_in, weight_lb, water, caught_on, notes
+    `;
+    return json(200, { ok: true, entry: rows[0] });
+  }
+
+  return new Response("Method not allowed", { status: 405 });
+}
+
+// Deleting is scoped to the owner in the SQL itself, so a member can never
+// delete somebody else's row by guessing an id.
+async function handleDeleteCatch(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in first." });
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+  const body = await readJson(req);
+  const id = parseInt(body && body.id, 10);
+  if (!id) return json(400, { error: "Which entry?" });
+  await db.sql`DELETE FROM catches WHERE id = ${id} AND member_id = ${memberId}`;
+  return json(200, { ok: true });
+}
+
 async function handleWhoami(req, db) {
   const cookies = parseCookies(req.headers.get("cookie"));
   const memberId = verifySession(cookies.ffn_session);
@@ -394,6 +546,14 @@ export default async (req) => {
         return await handleSignup(req, db);
       case "login":
         return await handleLogin(req, db);
+      case "catches":
+        return await handleCatches(req, db);
+      case "delete-catch":
+        return await handleDeleteCatch(req, db);
+      case "safety-pass":
+        return await handleSafetyPass(req, db);
+      case "safety-status":
+        return await handleSafetyStatus(req, db);
       case "whoami":
         return await handleWhoami(req, db);
       default:
