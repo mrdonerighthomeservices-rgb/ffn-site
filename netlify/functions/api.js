@@ -35,7 +35,9 @@
 // =====================================================================
 import { getDatabase } from "@netlify/database";
 import crypto from "node:crypto";
-import nodemailer from "nodemailer";
+// nodemailer is loaded lazily, inside a try/catch, further down. It is NOT
+// imported at the top on purpose: a missing or broken mail library must
+// never be able to stop somebody from creating an account.
 
 export const config = { path: "/api/*" };
 
@@ -199,13 +201,19 @@ function verifyPassword(password, stored) {
 // it needs one email per signup and the occasional resend.
 // ---------------------------------------------------------------------
 let mailer = null;
-function getMailer() {
+async function getMailer() {
   if (mailer) return mailer;
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_APP_PASSWORD;
   if (!user || !pass) return null;
-  mailer = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
-  return mailer;
+  try {
+    const nodemailer = (await import("nodemailer")).default;
+    mailer = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+    return mailer;
+  } catch (err) {
+    console.error("FFN: nodemailer could not be loaded, mail is off:", err);
+    return null;
+  }
 }
 
 function newVerifyToken() {
@@ -213,7 +221,13 @@ function newVerifyToken() {
 }
 
 async function sendVerificationEmail(toEmail, toName, token) {
-  const transport = getMailer();
+  let transport = null;
+  try {
+    transport = await getMailer();
+  } catch (err) {
+    console.error("FFN: mail setup failed:", err);
+    return false;
+  }
   if (!transport) {
     // Do not throw -- a signup should still succeed even if mail is not
     // configured yet. It just means nobody gets a verification email
@@ -481,7 +495,14 @@ async function handleSignup(req, db) {
   // an email proves they own the address, it does not gate the free site.
   // If the email fails to send, signup still succeeds; sent:false tells
   // the page to say so instead of promising an email that never left.
-  const sent = await sendVerificationEmail(email, name, token);
+  // The account row is already saved by this point. Mail is a nice-to-have
+  // on top of that, so nothing it does may be allowed to throw.
+  let sent = false;
+  try {
+    sent = await sendVerificationEmail(email, name, token);
+  } catch (err) {
+    console.error("FFN: verification email blew up, account still created:", err);
+  }
 
   return json(200, { ok: true, name: member.name, account_type: member.account_type, verification_sent: sent }, [
     ["set-cookie", buildSessionCookie(member.id)],
