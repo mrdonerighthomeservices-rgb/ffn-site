@@ -37,6 +37,10 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://fishingfriendsnetwork.com/catch-log.html</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://fishingfriendsnetwork.com/local.html</loc>
     <priority>0.6</priority>
   </url>
@@ -67,4 +71,6 @@
   <url><loc>https://fishingfriendsnetwork.com/privacy.html</loc><priority>0.3</priority></url>
   <url><loc>https://fishingfriendsnetwork.com/terms.html</loc><priority>0.3</priority></url>
   <url><loc>https://fishingfriendsnetwork.com/permission-slip.html</loc><priority>0.7</priority></url>
+  <url><loc>https://fishingfriendsnetwork.com/safety-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://fishingfriendsnetwork.com/learn-to-fish.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

@@ -30,9 +30,16 @@
 .stepbar div.now{background:var(--amber);}
 
 .tag{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--bark);background:var(--parchment);display:inline-block;padding:4px 10px;border-radius:3px;margin-bottom:12px;}
-.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px 20px;margin-bottom:16px;}
+.card{color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px 20px;margin-bottom:16px;}
+/* This page's cards are white, not the dark green cards in ffn.css,
+   so the text colours have to be restated or they stay near-white. */
+.card h3{color:var(--teal);}
+.card p{color:var(--ink);}
+.card a{color:var(--teal);}
+.card .eyebrow{color:var(--bark);}
+.card p.hint{color:#4A5560;}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--bark);margin-bottom:6px;}
-.hint{font-size:.84rem;color:#6b6a63;margin:0 0 14px 0;}
+.hint{font-size:.84rem;color:#4A5560;margin:0 0 14px 0;}
 
 label{font-size:.8rem;font-weight:600;display:block;margin-bottom:4px;color:var(--teal);}
 input[type=text],input[type=email],input[type=password],input[type=date],textarea{width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:'Inter',sans-serif;font-size:.95rem;background:var(--paper);}
@@ -46,10 +53,10 @@ textarea{min-height:74px;resize:vertical;}
 
 .ladder{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
 .rung{border:1px solid var(--line);border-radius:6px;padding:10px 13px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;gap:10px;background:var(--paper);}
-.rung.on{border-color:var(--teal);background:#fff;box-shadow:0 0 0 2px rgba(27,59,54,.12);}
+.rung.on{border-color:var(--teal);background:#fff;box-shadow:0 0 0 2px rgba(20,49,77,.12);}
 .rung .dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;}
 .rung.on .dot{border-color:var(--teal);background:var(--teal);}
-.rung small{color:#6b6a63;font-size:.78rem;}
+.rung small{color:#4A5560;font-size:.78rem;}
 
 .photozone{display:flex;gap:16px;align-items:center;margin-bottom:14px;}
 .avatar{width:88px;height:88px;border-radius:50%;flex-shrink:0;background:var(--parchment);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
@@ -60,14 +67,14 @@ input[type=file]{display:none;}
 
 .icongrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;}
 .ic{aspect-ratio:1;border-radius:50%;border:2px solid transparent;background:var(--paper);cursor:pointer;padding:6px;display:flex;align-items:center;justify-content:center;}
-.ic.on{border-color:var(--teal);box-shadow:0 0 0 2px rgba(27,59,54,.14);}
+.ic.on{border-color:var(--teal);box-shadow:0 0 0 2px rgba(20,49,77,.14);}
 .ic svg{width:100%;height:100%;}
 
 .badgerow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
 .badge{font-family:'IBM Plex Mono',monospace;font-size:.66rem;padding:4px 9px;border-radius:10px;}
-.badge.youth{background:#FBF0D9;color:var(--bark);border:1px solid var(--amber);}
-.badge.adult{background:#DCEAD8;color:#3C5E37;}
-.badge.age{background:#EFE9DC;color:var(--bark);}
+.badge.youth{background:#E8F1F9;color:var(--bark);border:1px solid var(--amber);}
+.badge.adult{background:#DCEAF5;color:#2F5A7C;}
+.badge.age{background:#E8F1F9;color:var(--bark);}
 
 .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0;}
 .stat{background:var(--paper);border-radius:6px;padding:10px 6px;text-align:center;}
@@ -76,7 +83,7 @@ input[type=file]{display:none;}
 
 .pnote{background:var(--parchment);border-left:3px solid var(--amber);padding:10px 12px;font-size:.8rem;border-radius:0 4px 4px 0;margin-bottom:14px;}
 .field-out{padding:8px 0;border-top:1px solid var(--line);font-size:.9rem;}
-.field-out span{color:#6b6a63;font-size:.78rem;display:block;}
+.field-out span{color:#4A5560;font-size:.78rem;display:block;}
 
 
 
@@ -87,13 +94,13 @@ input[type=file]{display:none;}
 <body>
 <header>
   <div class="nav-wrap">
-    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
     <a class="home-pill" href="index.html">&#8962; Home</a>
     <button class="menu-btn" aria-label="Menu" onclick="var u=document.querySelector('nav ul');u.classList.toggle('open');">Menu<span></span></button>
-    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="safety-test.html">Safety Test</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="catch-log.html">My Catch Log</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
     <div class="nav-cta">
       <a class="btn solid" href="join.html">Join Free</a>
-      <a class="btn" href="support.html">Support</a>
+      <a class="btn" href="login.html">Log In</a><a class="btn" href="support.html">Support</a>
     </div>
   </div>
 </header>
@@ -173,7 +180,7 @@ input[type=file]{display:none;}
     <label for="pg-area">Town or county</label>
     <input type="text" id="pg-area" name="area" placeholder="Helps us know where to start">
 
-    <label for="pg-phone">Phone number <span style="font-weight:400;color:#6b6a63;">(optional, for a faster callback)</span></label>
+    <label for="pg-phone">Phone number <span style="font-weight:400;color:#4A5560;">(optional, for a faster callback)</span></label>
     <input type="tel" id="pg-phone" name="parent_phone">
 
     <label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;margin-top:14px;">
@@ -221,7 +228,7 @@ input[type=file]{display:none;}
     <input type="text" id="p-name" placeholder="Bassmaster Bobby, Walleye Willie, Lunker Lou">
     <p class="hint" style="margin-top:-8px;font-size:.78rem;" id="name-note"></p>
 
-    <label>Skill Level <span style="font-weight:400;color:#6b6a63;">(self-reported)</span></label>
+    <label>Skill Level <span style="font-weight:400;color:#4A5560;">(self-reported)</span></label>
     <div class="ladder" id="skill">
       <div class="rung" data-v="Learning"><span class="dot"></span>Learning</div>
       <div class="rung" data-v="I Can Hold My Own"><span class="dot"></span>I Can Hold My Own</div>
@@ -235,7 +242,7 @@ input[type=file]{display:none;}
     <div class="ladder" id="reel">
       <div class="rung" data-v="Left Hand"><span class="dot"></span>Left Hand</div>
       <div class="rung" data-v="Right Hand"><span class="dot"></span>Right Hand</div>
-      <div class="rung" data-v="Doesn't fish a bait caster"><span class="dot"></span>Do not Fish a Bait Caster</div>
+      <div class="rung" data-v="Does not fish a bait caster"><span class="dot"></span>Do not Fish a Bait Caster</div>
     </div>
 
     <label for="p-bio">A Little About You</label>
@@ -261,7 +268,7 @@ input[type=file]{display:none;}
       <div class="avatar" id="out-avatar"></div>
       <div>
         <h2 id="out-name" style="font-size:1.25rem;margin-bottom:2px;"></h2>
-        <div id="out-skill" style="font-size:.85rem;color:#6b6a63;"></div>
+        <div id="out-skill" style="font-size:.85rem;color:#4A5560;"></div>
       </div>
     </div>
     <div id="out-parentnote"></div>
@@ -294,15 +301,15 @@ input[type=file]{display:none;}
 const state = { dob:null, age:null, isYouth:false, band:null, photo:null, icon:null, name:'', skill:'', reel:'', bio:'' };
 
 /* ---------- placeholder fish icons ---------- */
-function bassIcon(){return `<svg viewBox="0 0 64 64"><path d="M4 33 C 4 24, 10 16, 20 13 C 30 10, 42 11, 50 16 C 55 19, 58 24, 62 24 L 58 33 L 62 42 C 58 42, 55 47, 50 50 C 42 55, 30 56, 20 53 C 10 50, 4 42, 4 33 Z" fill="#5C6B3F"/><path d="M6 36 C 8 44, 16 50, 26 52 C 18 51, 10 46, 6 38 Z" fill="#EDE6C9"/><circle cx="15" cy="24" r="2.4" fill="#EDE6C9"/><circle cx="15.4" cy="24" r="1.2" fill="#1a1a12"/></svg>`;}
-function troutIcon(){return `<svg viewBox="0 0 64 64"><path d="M4 30 C 6 20, 14 14, 24 12 C 34 10, 44 13, 52 18 L 60 15 L 55 24 L 60 28 L 55 32 L 60 36 L 52 42 C 44 47, 34 50, 24 48 C 14 46, 6 40, 4 30 Z" fill="#8FA9B8"/><path d="M6 33 C 10 42, 18 47, 26 48 C 18 46, 10 41, 6 34 Z" fill="#F2ECE0"/><circle cx="22" cy="22" r="1.2" fill="#3E4A2A"/><circle cx="32" cy="26" r="1.2" fill="#3E4A2A"/><circle cx="40" cy="21" r="1.1" fill="#3E4A2A"/><circle cx="14" cy="21" r="2" fill="#EDEBE0"/><circle cx="14.4" cy="21" r="1" fill="#1a1a12"/></svg>`;}
-function catIcon(){return `<svg viewBox="0 0 64 64"><path d="M16 22 C 26 17, 38 17, 46 22 C 50 24, 52 27, 52 30 C 52 33, 50 36, 46 38 C 38 43, 26 43, 16 38 C 10 35, 8 32, 8 30 C 8 28, 10 25, 16 22 Z" fill="#6B7178"/><path d="M46 26 C 52 25, 58 26, 62 28 L 58 30 L 62 32 C 58 34, 52 35, 46 34 Z" fill="#6B7178"/><path d="M12 27 C 6 24, 2 24, -2 22" stroke="#6B7178" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M12 33 C 6 36, 2 36, -2 38" stroke="#6B7178" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="20" cy="27" r="1.6" fill="#DADBD2"/><circle cx="20.3" cy="27" r=".8" fill="#1a1a12"/></svg>`;}
-function gillIcon(){return `<svg viewBox="0 0 64 64"><path d="M28 8 C 40 8, 48 18, 48 30 C 48 42, 40 52, 28 52 C 16 52, 8 42, 8 30 C 8 18, 16 8, 28 8 Z" fill="#4E7A6B"/><path d="M28 34 C 36 34, 42 38, 44 44 C 36 48, 24 48, 16 44 C 18 38, 22 34, 28 34 Z" fill="#D98A4A" opacity=".9"/><path d="M46 22 L 58 14 L 56 30 L 58 46 L 46 38 Z" fill="#4E7A6B"/><ellipse cx="18" cy="26" rx="2.6" ry="3.6" fill="#2B3B36"/><circle cx="14" cy="21" r="2.2" fill="#EDE6C9"/><circle cx="14.4" cy="21" r="1.1" fill="#1a1a12"/></svg>`;}
-function walleyeIcon(){return `<svg viewBox="0 0 64 64"><path d="M4 32 C 6 22, 14 15, 24 13 C 34 11, 44 14, 52 19 L 60 17 L 56 24 L 60 28 L 56 32 L 60 36 L 52 43 C 44 48, 34 50, 24 48 C 14 46, 6 42, 4 32 Z" fill="#9C8A4E"/><path d="M6 35 C 10 43, 18 47, 26 48 C 18 46, 10 41, 6 36 Z" fill="#E7DFC4"/><path d="M16 20 C 22 18, 24 24, 20 28 C 16 26, 12 24, 16 20 Z" fill="#3A3524" opacity=".5"/><path d="M28 18 C 34 17, 37 22, 32 27 C 27 24, 24 21, 28 18 Z" fill="#3A3524" opacity=".4"/><circle cx="16" cy="24" r="3" fill="#D8D4B8"/><circle cx="16.4" cy="24" r="1.7" fill="#4a4530"/></svg>`;}
+function bassIcon(){return `<svg viewBox="0 0 64 64"><path d="M4 33 C 4 24, 10 16, 20 13 C 30 10, 42 11, 50 16 C 55 19, 58 24, 62 24 L 58 33 L 62 42 C 58 42, 55 47, 50 50 C 42 55, 30 56, 20 53 C 10 50, 4 42, 4 33 Z" fill="#45607A"/><path d="M6 36 C 8 44, 16 50, 26 52 C 18 51, 10 46, 6 38 Z" fill="#DCEAF5"/><circle cx="15" cy="24" r="2.4" fill="#DCEAF5"/><circle cx="15.4" cy="24" r="1.2" fill="#1B2733"/></svg>`;}
+function troutIcon(){return `<svg viewBox="0 0 64 64"><path d="M4 30 C 6 20, 14 14, 24 12 C 34 10, 44 13, 52 18 L 60 15 L 55 24 L 60 28 L 55 32 L 60 36 L 52 42 C 44 47, 34 50, 24 48 C 14 46, 6 40, 4 30 Z" fill="#8FA9B8"/><path d="M6 33 C 10 42, 18 47, 26 48 C 18 46, 10 41, 6 34 Z" fill="#E8F1F9"/><circle cx="22" cy="22" r="1.2" fill="#2A3F52"/><circle cx="32" cy="26" r="1.2" fill="#2A3F52"/><circle cx="40" cy="21" r="1.1" fill="#2A3F52"/><circle cx="14" cy="21" r="2" fill="#E8F1F9"/><circle cx="14.4" cy="21" r="1" fill="#1B2733"/></svg>`;}
+function catIcon(){return `<svg viewBox="0 0 64 64"><path d="M16 22 C 26 17, 38 17, 46 22 C 50 24, 52 27, 52 30 C 52 33, 50 36, 46 38 C 38 43, 26 43, 16 38 C 10 35, 8 32, 8 30 C 8 28, 10 25, 16 22 Z" fill="#6B7178"/><path d="M46 26 C 52 25, 58 26, 62 28 L 58 30 L 62 32 C 58 34, 52 35, 46 34 Z" fill="#6B7178"/><path d="M12 27 C 6 24, 2 24, -2 22" stroke="#6B7178" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M12 33 C 6 36, 2 36, -2 38" stroke="#6B7178" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="20" cy="27" r="1.6" fill="#CFE2F0"/><circle cx="20.3" cy="27" r=".8" fill="#1B2733"/></svg>`;}
+function gillIcon(){return `<svg viewBox="0 0 64 64"><path d="M28 8 C 40 8, 48 18, 48 30 C 48 42, 40 52, 28 52 C 16 52, 8 42, 8 30 C 8 18, 16 8, 28 8 Z" fill="#3F6485"/><path d="M28 34 C 36 34, 42 38, 44 44 C 36 48, 24 48, 16 44 C 18 38, 22 34, 28 34 Z" fill="#D98A4A" opacity=".9"/><path d="M46 22 L 58 14 L 56 30 L 58 46 L 46 38 Z" fill="#3F6485"/><ellipse cx="18" cy="26" rx="2.6" ry="3.6" fill="#22394D"/><circle cx="14" cy="21" r="2.2" fill="#DCEAF5"/><circle cx="14.4" cy="21" r="1.1" fill="#1B2733"/></svg>`;}
+function walleyeIcon(){return `<svg viewBox="0 0 64 64"><path d="M4 32 C 6 22, 14 15, 24 13 C 34 11, 44 14, 52 19 L 60 17 L 56 24 L 60 28 L 56 32 L 60 36 L 52 43 C 44 48, 34 50, 24 48 C 14 46, 6 42, 4 32 Z" fill="#7A8FA6"/><path d="M6 35 C 10 43, 18 47, 26 48 C 18 46, 10 41, 6 36 Z" fill="#DCEAF5"/><path d="M16 20 C 22 18, 24 24, 20 28 C 16 26, 12 24, 16 20 Z" fill="#2B3B4A" opacity=".5"/><path d="M28 18 C 34 17, 37 22, 32 27 C 27 24, 24 21, 28 18 Z" fill="#2B3B4A" opacity=".4"/><circle cx="16" cy="24" r="3" fill="#CFE2F0"/><circle cx="16.4" cy="24" r="1.7" fill="#38485A"/></svg>`;}
 function crossIcon(){return `<svg viewBox="0 0 64 64"><line x1="32" y1="10" x2="32" y2="54" stroke="#D9A441" stroke-width="6" stroke-linecap="round"/><line x1="16" y1="26" x2="48" y2="26" stroke="#D9A441" stroke-width="6" stroke-linecap="round"/></svg>`;}
 function bobberIcon(){return `<svg viewBox="0 0 64 64"><line x1="32" y1="8" x2="32" y2="56" stroke="#6B4226" stroke-width="2" opacity=".5"/><path d="M32 20 A14 14 0 0 1 32 48 A14 14 0 0 1 32 20 Z" fill="#B8362E"/><path d="M32 20 A14 14 0 0 1 32 48" fill="#fff"/></svg>`;}
-function boatIcon(){return `<svg viewBox="0 0 64 64"><path d="M6 40 C 12 38, 22 37, 32 37 C 44 37, 54 35, 62 30 L 60 40 C 52 44, 40 46, 28 46 C 18 46, 10 44, 6 42 Z" fill="#A34A3A"/><line x1="22" y1="37" x2="22" y2="28" stroke="#2B2620" stroke-width="1.8"/></svg>`;}
-function anchorIcon(){return `<svg viewBox="0 0 64 64"><circle cx="32" cy="13" r="5" fill="none" stroke="#1B3B36" stroke-width="3"/><line x1="32" y1="18" x2="32" y2="48" stroke="#1B3B36" stroke-width="3.5"/><line x1="20" y1="25" x2="44" y2="25" stroke="#1B3B36" stroke-width="3"/><path d="M14 36 C 14 48, 26 52, 32 52" stroke="#1B3B36" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M50 36 C 50 48, 38 52, 32 52" stroke="#1B3B36" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>`;}
+function boatIcon(){return `<svg viewBox="0 0 64 64"><path d="M6 40 C 12 38, 22 37, 32 37 C 44 37, 54 35, 62 30 L 60 40 C 52 44, 40 46, 28 46 C 18 46, 10 44, 6 42 Z" fill="#A34A3A"/><line x1="22" y1="37" x2="22" y2="28" stroke="#1B2733" stroke-width="1.8"/></svg>`;}
+function anchorIcon(){return `<svg viewBox="0 0 64 64"><circle cx="32" cy="13" r="5" fill="none" stroke="#14314D" stroke-width="3"/><line x1="32" y1="18" x2="32" y2="48" stroke="#14314D" stroke-width="3.5"/><line x1="20" y1="25" x2="44" y2="25" stroke="#14314D" stroke-width="3"/><path d="M14 36 C 14 48, 26 52, 32 52" stroke="#14314D" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M50 36 C 50 48, 38 52, 32 52" stroke="#14314D" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>`;}
 function sunIcon(){return `<svg viewBox="0 0 64 64"><path d="M12 40 A20 20 0 0 1 52 40 Z" fill="#D9A441"/><line x1="32" y1="6" x2="32" y2="12" stroke="#D9A441" stroke-width="2.5" stroke-linecap="round"/><line x1="12" y1="16" x2="16" y2="20" stroke="#D9A441" stroke-width="2.5" stroke-linecap="round"/><line x1="52" y1="16" x2="48" y2="20" stroke="#D9A441" stroke-width="2.5" stroke-linecap="round"/><line x1="12" y1="48" x2="52" y2="48" stroke="#D9A441" stroke-width="2.5" stroke-linecap="round"/></svg>`;}
 
 const ICONS = [
@@ -481,7 +488,7 @@ function drawAvatar(id){
   } else {
     el.innerHTML = state.photo
       ? `<img src="${state.photo}" alt="Your photo">`
-      : `<span style="font-family:Fraunces,serif;font-size:1.5rem;color:#6B4226;">＋</span>`;
+      : `<span style="font-family:Fraunces,serif;font-size:1.5rem;color:#14314D;">＋</span>`;
   }
 }
 

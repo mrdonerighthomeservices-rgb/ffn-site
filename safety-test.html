@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safety Test | Fishing Friends Network</title>
+<meta name="description" content="Pass the Fishing Friends Network safety test and earn your Safety Certified badge. Ten questions. Free for every member.">
+<link rel="canonical" href="https://fishingfriendsnetwork.com/safety-test.html">
+<link rel="stylesheet" href="ffn.css">
+<style>
+.quizwrap{max-width:660px;margin:0 auto;}
+.progress{display:flex;gap:5px;margin-bottom:22px;}
+.progress div{flex:1;height:5px;border-radius:3px;background:var(--line);transition:background .2s;}
+.progress div.done{background:var(--sage);}
+.progress div.now{background:var(--amber);}
+
+.qcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:26px 24px;}
+.qnum{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bark);margin-bottom:10px;}
+.qtext{font-family:'Fraunces',serif;font-weight:700;font-size:1.35rem;color:var(--teal);line-height:1.3;margin-bottom:20px;}
+
+.opts{display:flex;flex-direction:column;gap:9px;}
+.opt{border:2px solid var(--line);border-radius:7px;padding:13px 15px;cursor:pointer;font-size:.97rem;background:var(--paper);text-align:left;font-family:'Inter',sans-serif;color:var(--ink);line-height:1.4;}
+.opt:hover:not(:disabled){border-color:var(--sage);}
+.opt:disabled{cursor:default;}
+.opt.right{border-color:#2E7D32;background:#E8F5E9;font-weight:600;}
+.opt.wrong{border-color:#B8362E;background:#FBEAE8;}
+
+.feedback{margin-top:18px;padding:15px 17px;border-radius:7px;font-size:.94rem;line-height:1.5;display:none;}
+.feedback.show{display:block;}
+.feedback.good{background:#E8F5E9;border-left:4px solid #2E7D32;}
+.feedback.bad{background:#FBEAE8;border-left:4px solid #B8362E;}
+.feedback strong{display:block;margin-bottom:5px;}
+
+.nextrow{margin-top:20px;display:none;}
+.nextrow.show{display:block;}
+
+.scorebox{background:#fff;border:1px solid var(--line);border-radius:10px;padding:32px 26px;text-align:center;}
+.bignum{font-family:'Fraunces',serif;font-weight:700;font-size:3.4rem;line-height:1;color:var(--teal);}
+.scorelabel{font-family:'IBM Plex Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--bark);margin-top:6px;}
+.verdict{font-family:'Fraunces',serif;font-weight:700;font-size:1.6rem;margin:22px 0 10px;}
+.verdict.pass{color:#2E7D32;}
+.verdict.fail{color:#B8362E;}
+
+.cert{border:3px double var(--teal);border-radius:8px;padding:28px 24px;margin-top:24px;background:var(--paper);}
+.cert .ct{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bark);}
+.cert .cn{font-family:'Fraunces',serif;font-weight:700;font-size:1.7rem;color:var(--teal);margin:12px 0;}
+.cert .cd{font-size:.85rem;color:#4A5560;}
+
+.missed{text-align:left;margin-top:26px;padding-top:20px;border-top:1px solid var(--line);}
+.missed h3{color:var(--teal);font-size:1rem;margin-bottom:12px;}
+.missed li{margin-bottom:11px;font-size:.92rem;line-height:1.5;color:var(--ink);}
+
+.intro-list{background:var(--parchment);border-radius:8px;padding:20px 24px;margin:20px 0;}
+.intro-list li{margin-bottom:9px;font-size:.95rem;}
+@media print{header,footer,.noprint{display:none!important;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
+    <a class="home-pill" href="index.html">&#8962; Home</a>
+    <button class="menu-btn" aria-label="Menu" onclick="var u=document.querySelector('nav ul');u.classList.toggle('open');">Menu<span></span></button>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="safety-test.html" class="active">Safety Test</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="catch-log.html">My Catch Log</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
+    <div class="nav-cta">
+      <a class="btn solid" href="join.html">Join Free</a>
+      <a class="btn" href="login.html">Log In</a><a class="btn" href="support.html">Support</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-head"><div class="inner">
+  <p class="eyebrow">Safety Certification</p>
+  <h1>Safety first, ethics second, fishing third.</h1>
+  <p>Ten questions. Get eight right and you are Safety Certified. Miss a few and take it again. There is no limit. What matters is that you know it, not that you got it the first time.</p>
+</div></div>
+
+<section class="section">
+<div class="quizwrap" id="quiz"></div>
+</section>
+
+<footer>
+  <div class="footer-wrap">
+    <span>&copy; Fishing Friends Network LLC</span>
+    <span>fishingfriendsnetwork@gmail.com</span>
+    <span><a href="join.html">Join Free</a> &middot; <a href="get-involved.html">Volunteer</a> &middot; <a href="support.html">Support</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a></span>
+  </div>
+</footer>
+
+<script>
+var PASS_MARK = 8;
+
+var QUESTIONS = [
+  {
+    q: "Before you head out to fish, what is the very first thing you do?",
+    opts: [
+      "Tell a grown-up where you are going and when you will be back",
+      "Pack your tackle box",
+      "Check the weather app",
+      "Pick out your lucky lure"
+    ],
+    right: 0,
+    why: "Everything else on this list matters. This one is the difference between a small problem and a big one. If nobody knows where you are, nobody knows where to look."
+  },
+  {
+    q: "You are fishing from a dock over deep water. What are you wearing?",
+    opts: [
+      "Nothing special, you know how to swim",
+      "A life jacket that fits you",
+      "A life jacket, but only if the water looks rough",
+      "Water shoes"
+    ],
+    right: 1,
+    why: "Knowing how to swim is not the same as being safe in cold water with your clothes on. A life jacket has to fit. Snug, and it does not slide up over your chin. It goes on before you get near deep or moving water."
+  },
+  {
+    q: "You are about to cast. Where do you look first?",
+    opts: [
+      "At the spot where you want the lure to land",
+      "At your line to check for knots",
+      "Behind you",
+      "At the water for fish"
+    ],
+    right: 2,
+    why: "A hook travels backward before it goes forward. Look behind you every single cast. Most hooks that end up in a person got there on the backswing."
+  },
+  {
+    q: "Somebody falls in the water and cannot get out. What do you do?",
+    opts: [
+      "Jump in and swim to them",
+      "Reach with something long, or throw something that floats, and yell for help",
+      "Run to find an adult before doing anything",
+      "Wait and see if they can get out on their own"
+    ],
+    right: 1,
+    why: "Reach or throw. Do not go. A panicking person will pull a rescuer under, and that is how one person in trouble becomes two. Hand them a rod, a branch, a cooler lid, anything that floats. Shout for help while you do it."
+  },
+  {
+    q: "You hear thunder in the distance. How long do you keep fishing?",
+    opts: [
+      "Until you see lightning",
+      "Until it starts raining",
+      "You stop right away and get inside or in a vehicle",
+      "About another 20 minutes, thunder is usually far off"
+    ],
+    right: 2,
+    why: "If you can hear thunder, you are close enough to be struck. A fishing rod is a lightning rod you are holding on purpose. When thunder rolls, you go. Wait thirty minutes after the last one before you go back out."
+  },
+  {
+    q: "A hook goes into your finger past the barb. What happens next?",
+    opts: [
+      "Yank it straight back out fast so it hurts less",
+      "Leave it in, cut the line, and get to an adult or a doctor",
+      "Push it all the way through yourself",
+      "Pour water on it and keep fishing"
+    ],
+    right: 1,
+    why: "A barb is built so it will not come back out the way it went in. Pulling it tears the wound wide open. Cut the line so nothing is tugging on it, leave the hook where it is, and let a grown-up or a doctor handle the rest."
+  },
+  {
+    q: "What is the safest way to hold a fish you have caught?",
+    opts: [
+      "By the eyes so it cannot wiggle",
+      "Squeeze it hard around the middle",
+      "Wet hands, support its belly, and keep your fingers clear of gills, teeth, and spines",
+      "By the tail and let it hang"
+    ],
+    right: 2,
+    why: "Wet hands protect the slime coat, and the slime coat is what keeps a fish from getting sick. Supporting the belly keeps you from wrecking its insides. A lot of fish have sharp gill plates, teeth, or fin spines that will cut you. Know what you caught before you grab it."
+  },
+  {
+    q: "It is a hot, sunny July day on the water. What is in your bag?",
+    opts: [
+      "Water and sunscreen",
+      "A soda",
+      "Nothing, you will only be a couple hours",
+      "Extra lures"
+    ],
+    right: 0,
+    why: "Sun comes at you twice on the water. Straight down, and bounced back up off the surface. You burn faster and you dry out faster than you would on land. Water and sunscreen, and a hat and sunglasses if you have them."
+  },
+  {
+    q: "Which of these should you never do while fishing?",
+    opts: [
+      "Fish alone in a spot where nobody can see or hear you",
+      "Catch a fish and let it go",
+      "Fish from the bank instead of a boat",
+      "Use worms instead of lures"
+    ],
+    right: 0,
+    why: "Take a buddy. If something goes wrong, a fall, a bad hook, a slip on a wet rock, one person alone is in real trouble. Two people are usually just fine."
+  },
+  {
+    q: "You are walking a riverbank and the rocks are wet. How do you move?",
+    opts: [
+      "Quickly, so you spend less time on the slippery part",
+      "Slowly, with your eyes on your feet, testing before you put weight down",
+      "Jump from rock to rock",
+      "Walk in the water instead, it has more grip"
+    ],
+    right: 1,
+    why: "Wet rock with algae on it is about as slick as ice. Slow down, look where your foot is going, and put weight on it before you commit. Moving water and a head injury is the worst pair in fishing."
+  }
+];
+
+var idx = 0, score = 0, missed = [], answered = false;
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+function progressBar(){
+  var h = '<div class="progress">';
+  for(var i=0;i<QUESTIONS.length;i++){
+    h += '<div class="' + (i<idx?'done':(i===idx?'now':'')) + '"></div>';
+  }
+  return h + '</div>';
+}
+
+function renderQ(){
+  answered = false;
+  var q = QUESTIONS[idx];
+  var h = progressBar() +
+    '<div class="qcard">' +
+      '<div class="qnum">Question ' + (idx+1) + ' of ' + QUESTIONS.length + '</div>' +
+      '<div class="qtext">' + esc(q.q) + '</div>' +
+      '<div class="opts" id="opts">';
+  for(var i=0;i<q.opts.length;i++){
+    h += '<button class="opt" data-i="' + i + '">' + esc(q.opts[i]) + '</button>';
+  }
+  h += '</div>' +
+      '<div class="feedback" id="fb"></div>' +
+      '<div class="nextrow" id="nx"><button class="btn solid" id="nextbtn">' +
+        (idx === QUESTIONS.length-1 ? 'See My Score' : 'Next Question') +
+      '</button></div>' +
+    '</div>';
+  document.getElementById('quiz').innerHTML = h;
+
+  var btns = document.querySelectorAll('.opt');
+  Array.prototype.forEach.call(btns, function(b){
+    b.addEventListener('click', function(){ pick(parseInt(b.dataset.i,10)); });
+  });
+  document.getElementById('nextbtn').addEventListener('click', next);
+}
+
+function pick(choice){
+  if(answered) return;
+  answered = true;
+  var q = QUESTIONS[idx];
+  var correct = (choice === q.right);
+  if(correct) score++; else missed.push(idx);
+
+  var btns = document.querySelectorAll('.opt');
+  Array.prototype.forEach.call(btns, function(b){
+    var i = parseInt(b.dataset.i,10);
+    b.disabled = true;
+    if(i === q.right) b.className = 'opt right';
+    else if(i === choice) b.className = 'opt wrong';
+  });
+
+  var fb = document.getElementById('fb');
+  fb.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  fb.innerHTML = '<strong>' + (correct ? 'That is right.' : 'Not quite. The right answer is highlighted.') + '</strong>' + esc(q.why);
+  document.getElementById('nx').className = 'nextrow show';
+}
+
+function next(){
+  idx++;
+  if(idx < QUESTIONS.length) renderQ(); else finish();
+}
+
+function finish(){
+  var passed = score >= PASS_MARK;
+  var today = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+
+  var h = '<div class="scorebox">' +
+    '<div class="bignum">' + score + ' / ' + QUESTIONS.length + '</div>' +
+    '<div class="scorelabel">Your Score</div>' +
+    '<div class="verdict ' + (passed?'pass':'fail') + '">' +
+      (passed ? 'You passed. You are Safety Certified.' : 'Not yet. You need ' + PASS_MARK + ' right to pass.') +
+    '</div>' +
+    '<p style="max-width:44ch;margin:0 auto;">' +
+      (passed
+        ? 'You know what keeps people safe on the water. Go fishing, take a buddy, and look behind you before you cast.'
+        : 'No harm done. Read the ones you missed below, then take it again. There is no limit and no penalty.') +
+    '</p>';
+
+  if(passed){
+    h += '<div class="cert">' +
+      '<div class="ct">Fishing Friends Network</div>' +
+      '<div class="cn">Safety Certified</div>' +
+      '<div class="cd" id="certname">Passed ' + esc(today) + ' &middot; ' + score + ' of ' + QUESTIONS.length + '</div>' +
+    '</div>';
+  }
+
+  if(missed.length){
+    h += '<div class="missed"><h3>Worth going back over</h3><ul>';
+    for(var i=0;i<missed.length;i++){
+      var q = QUESTIONS[missed[i]];
+      h += '<li><strong>' + esc(q.q) + '</strong><br>' + esc(q.opts[q.right]) + '<br>' + esc(q.why) + '</li>';
+    }
+    h += '</ul></div>';
+  }
+
+  h += '<div class="noprint" style="margin-top:26px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+    '<button class="btn" id="again">Take It Again</button>' +
+    (passed ? '<button class="btn solid" id="printit">Print My Certificate</button>' : '<a class="btn solid" href="learn-to-fish.html">Study The Safety Guides</a>') +
+  '</div></div>';
+
+  document.getElementById('quiz').innerHTML = h;
+  document.getElementById('again').addEventListener('click', function(){
+    idx=0; score=0; missed=[]; renderQ(); window.scrollTo(0,0);
+  });
+  var p = document.getElementById('printit');
+  if(p) p.addEventListener('click', function(){ window.print(); });
+
+  // If they are logged in, put their name on the certificate and record the pass.
+  fetch('/api/whoami', { credentials:'same-origin' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(me){
+      if(!me || !me.member) return;
+      var el = document.getElementById('certname');
+      if(el) el.innerHTML = esc(me.member.name) + ' &middot; ' + esc(today) + ' &middot; ' + score + ' of ' + QUESTIONS.length;
+      if(passed){
+        fetch('/api/safety-pass', {
+          method:'POST', credentials:'same-origin',
+          headers:{'content-type':'application/json'},
+          body: JSON.stringify({ score: score, total: QUESTIONS.length })
+        }).catch(function(){});
+      }
+    }).catch(function(){});
+}
+
+renderQ();
+</script>
+</body>
+</html>

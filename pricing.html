@@ -28,8 +28,8 @@
 .tier-card.fam::before{content:"Coming Soon";position:absolute;top:-13px;left:22px;background:var(--sage);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;font-weight:600;}
 .tier-card h3{font-size:1.15rem;margin-bottom:2px;}
 .tier-card .price{font-family:'Fraunces',serif;font-weight:700;font-size:2.1rem;color:var(--teal);margin:8px 0 2px;}
-.tier-card .price span{font-family:'Inter',sans-serif;font-weight:500;font-size:.9rem;color:#6b6a63;}
-.tier-card .sub{font-size:.85rem;color:#6b6a63;margin-bottom:16px;min-height:2.6em;}
+.tier-card .price span{font-family:'Inter',sans-serif;font-weight:500;font-size:.9rem;color:#4A5560;}
+.tier-card .sub{font-size:.85rem;color:#4A5560;margin-bottom:16px;min-height:2.6em;}
 .tier-card ul{list-style:none;margin:0 0 18px 0;padding:0;flex-grow:1;}
 .tier-card li{font-size:.92rem;padding:7px 0;border-top:1px solid var(--line);display:flex;gap:8px;}
 .tier-card li:first-child{border-top:none;}
@@ -40,34 +40,36 @@
 .notopen p{margin:0 0 10px;max-width:66ch;}
 .notopen p:last-child{margin-bottom:0;}
 
-.split{background:var(--parchment);border-radius:8px;padding:26px 24px;margin:32px 0;}
+.split p,.split .note{color:var(--ink);}
+.signup-box p,.signup-box .signup-note{color:#4A5560;}
+.split{color:var(--ink);background:var(--parchment);border-radius:8px;padding:26px 24px;margin:32px 0;}
 .bar{display:flex;height:34px;border-radius:5px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#fff;margin-top:14px;}
 .bar div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;}
 .b1{background:var(--teal);flex:25;}
 .b2{background:var(--bark);flex:20;}
-.b3{background:var(--sage);flex:30;}
+.b3{background:#5C8CB3;flex:30;}
 .b4{background:var(--amber);flex:25;color:var(--ink);}
 .legend{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-top:16px;font-size:.88rem;}
 @media(min-width:600px){.legend{grid-template-columns:1fr 1fr 1fr 1fr;}}
 .legend .dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;}
 
 .compare{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:14px;}
-.compare th,.compare td{text-align:left;padding:10px;border-bottom:1px solid var(--line);}
+.compare th,.compare td{color:var(--ink);text-align:left;padding:10px;border-bottom:1px solid var(--line);}
 .compare th{font-family:'IBM Plex Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--bark);}
 
-.signup-box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:26px 24px;max-width:520px;margin:32px auto 0;}
+.signup-box{color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:26px 24px;max-width:520px;margin:32px auto 0;}
 .signup-box input,.signup-box select{width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid var(--line);border-radius:4px;font-family:'Inter',sans-serif;font-size:.95rem;background:var(--paper);}
 .signup-box label{font-size:.85rem;font-weight:500;display:block;margin-bottom:5px;color:var(--teal);}
-.signup-note{font-size:.82rem;color:#6b6a63;margin-top:10px;}
+.signup-note{font-size:.82rem;color:#4A5560;margin-top:10px;}
 </style>
 </head>
 <body>
 <header>
   <div class="nav-wrap">
-    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
     <a class="home-pill" href="index.html">&#8962; Home</a>
     <button class="menu-btn" aria-label="Menu" onclick="var u=document.querySelector('nav ul');u.classList.toggle('open');">Menu<span></span></button>
-    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html" class="active">Premium</a></li></ul></nav>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="safety-test.html">Safety Test</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="catch-log.html">My Catch Log</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html" class="active">Premium</a></li></ul></nav>
     <div class="nav-cta">
       <a class="btn solid" href="join.html">Join Free</a>
       <a class="btn" href="login.html">Log In</a><a class="btn" href="support.html">Support</a>
@@ -274,7 +276,7 @@
      Nothing below is built or live. This is a reference list for
      the next real build, once the login/account system exists.
      Decided Sept 2026, revised Aug 31 2026. Do not remove; expand
-     this list, don't replace it, as new ideas come up.
+     this list, do not replace it, as new ideas come up.
 
      UPDATE Sept 1 2026: Added the Family plan ($14.99/mo, up to two
      adults and every child in the household, defined by the roof
@@ -342,7 +344,7 @@
      the post goes live -- not just flag it after. Block on: phone
      number patterns; mentions of Snapchat/Instagram/TikTok/Discord/
      Facebook paired with phrases like "add me," "follow me," "DM
-     me"; phrases like "what's your real name," "what's your Snap,"
+     me"; phrases like "what is your real name," "what is your Snap,"
      "can I get your number." Blocked posts show the poster a plain
      message explaining FFN keeps all conversation on-platform to
      keep everyone safe. Borderline/unclear matches route to Johnny

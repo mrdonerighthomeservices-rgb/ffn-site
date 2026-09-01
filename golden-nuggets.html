@@ -39,7 +39,7 @@
 .done-btn .box{width:18px;height:18px;border:2px solid var(--line);border-radius:4px;
   flex-shrink:0;display:flex;align-items:center;justify-content:center;
   font-size:.8rem;line-height:1;color:#fff;}
-.done-btn.on{border-color:var(--sage);background:#F1F6EF;}
+.done-btn.on{border-color:var(--sage);background:#F4F8FC;}
 .done-btn.on .box{background:var(--sage);border-color:var(--sage);}
 .done-btn.on .box::after{content:"\2713";}
 .done-tally{font-family:'IBM Plex Mono',monospace;font-size:.76rem;color:var(--bark);}
@@ -48,10 +48,10 @@
 <body>
 <header>
   <div class="nav-wrap">
-    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
     <a class="home-pill" href="index.html">&#8962; Home</a>
     <button class="menu-btn" aria-label="Menu" onclick="var u=document.querySelector('nav ul');u.classList.toggle('open');">Menu<span></span></button>
-    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="golden-nuggets.html" class="active">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="safety-test.html">Safety Test</a></li><li><a href="golden-nuggets.html" class="active">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="catch-log.html">My Catch Log</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
     <div class="nav-cta">
       <a class="btn solid" href="join.html">Join Free</a>
       <a class="btn" href="login.html">Log In</a><a class="btn" href="support.html">Support</a>
@@ -87,7 +87,7 @@
         <path d="M66 62 L104 50 L112 78 L78 92 Z" fill="#FFDF8E" opacity="0.55"/>
         <path d="M142 64 L156 96 L128 104 L112 78 Z" fill="#FFF3C9" opacity="0.4"/>
         <path d="M78 92 L112 78 L128 104 L108 150 L70 144 L52 118 Z" fill="#9E7018" opacity="0.22"/>
-        <g stroke="#FFFDF2" stroke-width="2.4" stroke-linecap="round">
+        <g stroke="#F4F8FC" stroke-width="2.4" stroke-linecap="round">
           <g class="sparkle"><line x1="150" y1="46" x2="150" y2="66"/><line x1="140" y1="56" x2="160" y2="56"/></g>
           <g class="sparkle"><line x1="42" y1="132" x2="42" y2="146"/><line x1="35" y1="139" x2="49" y2="139"/></g>
           <g class="sparkle"><line x1="168" y1="118" x2="168" y2="130"/><line x1="162" y1="124" x2="174" y2="124"/></g>
@@ -139,79 +139,79 @@
 <script>
 const NUGGETS = [
  {t:"Always Stay Humble",
-  u:"Even a blind squirrel finds a nut once in a while. Fish do not care how good you think you are. Some days it's just not your day, and luck beats you out.",
+  u:"Even a blind squirrel finds a nut once in a while. Fish do not care how good you think you are. Some days it is just not your day, and luck beats you out.",
   l:"Take the good days as learning opportunities and try to teach somebody else what you learned. Take the bad days with your head held high and congratulate the winner, knowing that you tried your best.",
-  c:"Go ask the guy who's outfishing you what he's doing different. Hardest when he's half your age."},
- {t:"There's Always Room for Improvement",
+  c:"Go ask the guy who is outfishing you what he is doing different. Hardest when he is half your age."},
+ {t:"There is Always Room for Improvement",
   u:"Nobody ever has it all figured out. The moment you think you do is the moment you stop improving.",
   l:"Whenever you run into something you do not excel at, take note of it and start practicing that specific thing until you improve. Practice makes perfect.",
-  c:"Pick the bait you're worst with and fish nothing else all day. Bring only that bait and the poles for it, so you've got no easy option to switch to and nothing you have more confidence in. No choice but to fish it and learn what works and what doesn't."},
- {t:"Don't Forget to Live in the Moment",
-  u:"You can't change the past, and the future hasn't happened yet. All you actually have is the present. That's why they call it a gift.",
+  c:"Pick the bait you are worst with and fish nothing else all day. Bring only that bait and the poles for it, so you have got no easy option to switch to and nothing you have more confidence in. No choice but to fish it and learn what works and what does not."},
+ {t:"Do not Forget to Live in the Moment",
+  u:"You cannot change the past, and the future has not happened yet. All you actually have is the present. That is why they call it a gift.",
   l:"When your head is worrying about yesterday or tomorrow, center yourself in the present.",
-  c:"Go out fishing with your phone on silent and don't check it. (Always take it with you for safety reasons.)"},
+  c:"Go out fishing with your phone on silent and do not check it. (Always take it with you for safety reasons.)"},
  {t:"Face Your Fears Head On",
-  u:"The human body wants to fear what it does not know. What it can't see in the dark. What might be swimming below the surface. But the best way to overcome a fear is to understand it, and when you investigate something you're scared of, you may find out it isn't scary at all.",
+  u:"The human body wants to fear what it does not know. What it cannot see in the dark. What might be swimming below the surface. But the best way to overcome a fear is to understand it, and when you investigate something you are scared of, you may find out it is not scary at all.",
   l:"When something scares you, move toward it instead of away from it. Ask about it, read up on it, get somebody who knows to walk you through it. Most fears do not survive an honest look.",
-  c:"Go do the fishing thing you've been avoiding. Fish after dark, wade a little deeper than you're comfortable, or put in on water you've never run before."},
+  c:"Go do the fishing thing you have been avoiding. Fish after dark, wade a little deeper than you are comfortable, or put in on water you have never run before."},
  {t:"Control Your Emotions",
   u:"You will lose fish, get cut off in traffic, or hear things that make you see red. What happens to you, and the feelings it creates, is not up to you. How you react to them is.",
   l:"Take a deep breath and think about how you are going to react. That pause is the difference between a bad moment and a bad decision.",
   c:"Next time something irritates you, walk away to cool off for a minute. Take a look at the big picture and what impact this really has on your life."},
- {t:"Don't Waste Your Energy Getting Upset About Things You Cannot Change",
-  u:"The weather, the water levels, how the river is running, whether they're biting. You cannot argue any of it into changing. Same goes for controlling what other people think, say, or do.",
+ {t:"Do not Waste Your Energy Getting Upset About Things You Cannot Change",
+  u:"The weather, the water levels, how the river is running, whether they are biting. You cannot argue any of it into changing. Same goes for controlling what other people think, say, or do.",
   l:"Instead, focus on changing what you can, which is yourself. Look at yourself honestly and ask, what is my part in this?",
   c:"Next time you get upset, look at what you could have done differently to control the outcome at hand."},
- {t:"It's Not About the Destination, It's About the Journey",
+ {t:"It is Not About the Destination, It is About the Journey",
   u:"Nobody remembers the fish as long as they remember who they were with, the drive out, the coffee at four in the morning, and the fishing tales at the bait shop.",
   l:"Stop using success as the only measure of a day. Was it an enjoyable day? Was it better than working? Sometimes a bad day of fishing makes the best memories. Focus more on the memories made with your fishing friends than on the number of fish you catch.",
-  c:"On your next drive out to the fishing hole, stop and do the thing you've been meaning to do but never wanted to give up the time for."},
+  c:"On your next drive out to the fishing hole, stop and do the thing you have been meaning to do but never wanted to give up the time for."},
  {t:"You Need the Community as Much as It Needs You",
   u:"Everybody excels at some strengths while lacking in other areas. We need to be honest about what we are good at, and about the things other people are able to do better than us.",
   l:"Concentrate on your strengths and mastering them. Rely on the rest of the community to do the same, and collectively apply your skills for the best possible community.",
   c:"Next time you catch yourself thinking somebody's job is beneath respect, stop and think about what they actually do for the community, and what things would look like if nobody did it."},
  {t:"Never Take More Than You Need",
-  u:"It's okay to take a few fish for the table. Just don't take more than you plan to eat. Same goes with your money and your time. In the end we all end up six feet under and cannot take any of it with us. The only thing we leave behind is the reputation we made while we were here.",
+  u:"It is okay to take a few fish for the table. Just do not take more than you plan to eat. Same goes with your money and your time. In the end we all end up six feet under and cannot take any of it with us. The only thing we leave behind is the reputation we made while we were here.",
   l:"Always ask yourself how much do I really need, and never take more than that.",
-  c:"Give something extra of yours away, even if it's just a couple hours of your time. Look to your local community first."},
+  c:"Give something extra of yours away, even if it is just a couple hours of your time. Look to your local community first."},
  {t:"The Stronger the Community, the Stronger the Person",
   u:"United we stand, divided we fall. When a boater needs help out on the water, there is no telling when the next boat will come by.",
-  l:"It is the Fishing Friends way to always help out where possible, and safely. Help your brothers and sisters on the water out whenever they're in distress.",
+  l:"It is the Fishing Friends way to always help out where possible, and safely. Help your brothers and sisters on the water out whenever they are in distress.",
   c:"If you see an angler in distress, tow him back, get him a gallon of gas, or help him fix the motor. Do whatever you can safely do to help a stranded boater."},
- {t:"Don't Ever Let Your Ego Take Charge",
+ {t:"Do not Ever Let Your Ego Take Charge",
   u:"Ego is the voice that tells you that you already know, and keeps you from asking the question that would have fixed your whole day. The best anglers and the best leaders are confident and humble at the same time. Humility is a muscle. Work it every day and it gets stronger.",
   l:"When you feel the urge to prove something, ask who you are proving it to and why it matters.",
   c:"Take the guy who always finishes last and teach him what you know until he beats you."},
  {t:"Good, Honest Competition Brings Out the Best in People",
   u:"People excel when they get pushed. If an NFL team only ever practiced against a high school team, they would not get much better.",
-  l:"Go find the water where you're not the best one there, instead of the water where you know you'll win.",
-  c:"Enter something you know you'll lose. Then go back and enter it again."},
- {t:"If It Wasn't for the Bad Days, You'd Never Have Good Days",
-  u:"Everything in life is relative. Some days the fish just don't bite. Some days they bite whatever you throw at them. That's fishing, and that's most of life.",
+  l:"Go find the water where you are not the best one there, instead of the water where you know you will win.",
+  c:"Enter something you know you will lose. Then go back and enter it again."},
+ {t:"If It Was not for the Bad Days, You would Never Have Good Days",
+  u:"Everything in life is relative. Some days the fish just do not bite. Some days they bite whatever you throw at them. That is fishing, and that is most of life.",
   l:"Judge yourself on whether you gave it your all and did it right, not on what the payoff was.",
   c:"Next time you have a bad day fishing, remember the next great one will be that much greater."},
  {t:"Always Leave It Better Than You Found It",
-  u:"Society is always focused on taking instead of giving back. If people don't give, there will be nothing left to take.",
-  l:"Always try to improve your fishing spot, your workplace, and your community. Start with picking up any trash you see while you're out.",
-  c:"Complete a task for somebody else that isn't normally your responsibility."},
+  u:"Society is always focused on taking instead of giving back. If people do not give, there will be nothing left to take.",
+  l:"Always try to improve your fishing spot, your workplace, and your community. Start with picking up any trash you see while you are out.",
+  c:"Complete a task for somebody else that is not normally your responsibility."},
  {t:"Make Good Educated Guesses",
   u:"Information is power. In fishing, in decision making, and in life.",
   l:"Gather all the information available before you decide where to fish or what to fish for, then apply that same habit to your life.",
-  c:"Before your next trip, check the water level, the weather, and what's been biting. Write down where you plan to fish and why before you leave the house, then see how close you got."},
+  c:"Before your next trip, check the water level, the weather, and what is been biting. Write down where you plan to fish and why before you leave the house, then see how close you got."},
  {t:"Take a New Fishing Buddy With You",
   u:"One teacher can only take you so far. Keep fishing with new people and pick up new skills along the way, adding them to your arsenal. This is especially true in life.",
-  l:"Fish with as many people as you can. Concentrate on picking up what works well for them, and note what doesn't.",
+  l:"Fish with as many people as you can. Concentrate on picking up what works well for them, and note what does not.",
   c:"Take somebody fishing who is completely new to it and start teaching them the basics."},
  {t:"Be Grateful for What You Have",
-  u:"Somebody always has a better boat, better gear, or a bigger fish. Stop comparing what you have to what others have, and be grateful for what you've been given.",
+  u:"Somebody always has a better boat, better gear, or a bigger fish. Stop comparing what you have to what others have, and be grateful for what you have been given.",
   l:"A bird in the hand is worth two in the bush. Be grateful for what you have, not envious of what others have.",
-  c:"Write down one piece of gear you're grateful for next to every one on your wish list."},
+  c:"Write down one piece of gear you are grateful for next to every one on your wish list."},
  {t:"The Best Anglers Ask the Dumbest Questions",
   u:"Nobody was born knowing how to fish. The man who asks the dumb question learns the answer once and never has to ask it again. The man too proud to ask stays wrong for thirty years and calls it experience.",
-  l:"When you don't know, say so out loud. There's no shame in not knowing something. The only shame is pretending you do.",
-  c:"Ask somebody a question you're embarrassed not to know the answer to."},
+  l:"When you do not know, say so out loud. There is no shame in not knowing something. The only shame is pretending you do.",
+  c:"Ask somebody a question you are embarrassed not to know the answer to."},
  {t:"To Be Successful, Control the Things You Can",
-  u:"You're going to get snagged. You will throw your favorite lure into a tree. You might break off a monster! It happens to everybody. Every single one of us. And just as it happens in fishing, bad things are going to happen in life. Unfortunately, terrible things are going to happen. That is not up for debate. And when they do, your body is going to respond in anger. That is not a choice either. It happens before you get a say in it. You cannot control the anger. What you can control is how you respond to it. Stay calm. Think it through. Ask yourself one question: what is the best solution to this problem?",
+  u:"You are going to get snagged. You will throw your favorite lure into a tree. You might break off a monster! It happens to everybody. Every single one of us. And just as it happens in fishing, bad things are going to happen in life. Unfortunately, terrible things are going to happen. That is not up for debate. And when they do, your body is going to respond in anger. That is not a choice either. It happens before you get a say in it. You cannot control the anger. What you can control is how you respond to it. Stay calm. Think it through. Ask yourself one question: what is the best solution to this problem?",
   l:"When life gets you hung up, the worst thing you can do is react fast. Stop. Gather all the information. Process it and analyze it. Then make your move. Slow down, pick your moment, and then act.",
   c:"Next time you throw your lure into a tree, do not jerk it. Let it sit, reel it up slowly, and see if it is swinging back and forth. If it is, use the momentum and pull at the right time to pop it back over the branch. It takes practice, but it can be done if it is not wrapped around the branch multiple times."},
  {t:"Every Decision Has a Consequence, Good or Bad",
