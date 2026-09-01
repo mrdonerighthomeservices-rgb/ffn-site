@@ -27,6 +27,13 @@
       page script. isMember() caches its result for the rest of the page
       load, so calling it more than once is cheap. See golden-nuggets.html,
       education.html, and jokes.html for examples.
+
+   Both modes also swap the header buttons for anyone already logged in.
+   A member does not need "Join Free" or "Log In" in their face on every
+   page, so this file finds the .nav-cta box in the header and, once
+   whoami confirms a real session, replaces those two buttons with
+   Premium, Get Involved, and Log Out. This runs on every page that
+   loads this file, gate or no gate.
    ============================================================ */
 window.FFNGate = (function () {
   var memberPromise = null;
@@ -82,7 +89,55 @@ window.FFNGate = (function () {
     }
   }
 
+  // A member does not need to be sold on joining or logging in, they
+  // already did both. Swap those two header buttons for options that
+  // actually matter once somebody is signed in: going Premium, and
+  // Get Involved, which covers mentoring and volunteering. Support
+  // stays either way, and Log Out replaces the spot Join Free had.
+  function swapHeaderForMember() {
+    var box = document.querySelector('.nav-cta');
+    if (!box) return;
+    var join = box.querySelector('a[href="join.html"], a[href="/join.html"]');
+    var login = box.querySelector('a[href="login.html"], a[href="/login.html"]');
+    if (!join && !login) return; // already swapped, or not the usual header
+
+    if (join) {
+      join.textContent = 'Premium';
+      join.setAttribute('href', 'pricing.html');
+    }
+    if (login) {
+      login.textContent = 'Get Involved';
+      login.setAttribute('href', 'get-involved.html');
+      login.classList.remove('solid');
+      var out = document.createElement('a');
+      out.className = 'btn';
+      out.href = '#';
+      out.textContent = 'Log Out';
+      out.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        fetch('/api/logout', { credentials: 'same-origin' }).then(function () {
+          window.location.href = 'index.html';
+        });
+      });
+      login.insertAdjacentElement('afterend', out);
+    }
+  }
+
+  function runHeaderSwap() {
+    function go() {
+      isMember().then(function (member) {
+        if (member) swapHeaderForMember();
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', go);
+    } else {
+      go();
+    }
+  }
+
   if (!window.FFN_GATE_MANUAL) autoFullPageGate();
+  runHeaderSwap();
 
   return { isMember: isMember, buildCard: buildCard, showFullPage: showFullPage };
 })();

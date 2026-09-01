@@ -346,7 +346,9 @@ function viewMore(){
     ['/golden-nuggets.html','Golden Nuggets','Fishing wisdom that goes past fishing'],
     ['/lunker-board.html','Lunker Board','See what everybody is catching'],
     ['/jokes.html','Jokes','Somebody has to keep it light'],
-    ['/local.html','Local','Find your people near you']
+    ['/local.html','Local','Find your people near you'],
+    ['/get-involved.html','Get Involved','Mentor a kid, volunteer, or help run a chapter'],
+    ['/pricing.html','Premium','See what comes with going Premium']
   ];
   render('<h1>More</h1>' +
     '<div class="card">' + links.map(function(l){
@@ -414,7 +416,8 @@ refreshMe().then(function(){ show('home'); });
   });
 
   if (iOS) {
-    how.innerHTML = 'Tap the Share button at the bottom of Safari, then scroll down and tap <strong>Add to Home Screen</strong>.';
+    how.innerHTML = 'Tap the Share button at the bottom of Safari, then scroll down and tap <strong>Add to Home Screen</strong>. ' +
+      '<a href="/get-the-app.html" style="color:#4FD675;text-decoration:underline;">Show me the steps</a>';
     bar.classList.remove('hide');
   } else {
     // Give Chrome a moment to fire its event before falling back to words.
