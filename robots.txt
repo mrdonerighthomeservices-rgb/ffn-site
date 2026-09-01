@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Internal pages, keep out of search results
+Disallow: /parent-dashboard.html
+
+Sitemap: https://fishingfriendsnetwork.com/sitemap.xml

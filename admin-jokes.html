@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Approve Jokes | Fishing Friends Network</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="ffn.css">
+<style>
+.wrap{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
+.key-box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:24px;max-width:420px;}
+.key-box input{width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:.95rem;}
+.pend-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:18px 20px;margin-bottom:12px;}
+.pend-card .q{font-family:'Fraunces',serif;font-weight:700;color:var(--teal);}
+.pend-card .who{font-size:.8rem;color:#6b6a63;margin-top:6px;}
+.pend-actions{display:flex;gap:10px;margin-top:12px;}
+.pend-actions button{flex:1;padding:9px 0;border-radius:5px;border:1px solid var(--line);cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;}
+.pend-actions .approve{background:var(--sage);color:#fff;border-color:var(--sage);}
+.pend-actions .reject{background:#fff;color:#9C3A28;border-color:#9C3A28;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">FFN Internal</p>
+  <h1>Approve Jokes</h1>
+  <p class="hint">Not linked from anywhere on the public site. Bookmark this page. Enter your admin passphrase once, this browser remembers it.</p>
+
+  <div id="key-area"></div>
+  <div id="pending-area" style="margin-top:20px;"></div>
+</div>
+
+<script>
+function getKey(){ try{ return localStorage.getItem('ffn_admin_key') || ''; }catch(e){ return ''; } }
+function setKey(k){ try{ localStorage.setItem('ffn_admin_key', k); }catch(e){} }
+
+function renderKeyBox(){
+  var area = document.getElementById('key-area');
+  area.innerHTML =
+    '<div class="key-box">' +
+      '<label style="display:block;font-size:.85rem;font-weight:500;margin-bottom:5px;">Admin passphrase</label>' +
+      '<input type="password" id="admin-key-input" placeholder="Enter passphrase">' +
+      '<button class="btn solid" id="save-key-btn" style="width:100%;text-align:center;">Continue</button>' +
+    '</div>';
+  document.getElementById('save-key-btn').addEventListener('click', function(){
+    var v = document.getElementById('admin-key-input').value.trim();
+    if(!v) return;
+    setKey(v);
+    loadPending();
+  });
+}
+
+function jokeCard(j){
+  var div = document.createElement('div');
+  div.className = 'pend-card';
+  div.innerHTML =
+    '<div class="q">' + escapeHtml(j.setup) + '</div>' +
+    '<p style="margin:6px 0 0;">' + escapeHtml(j.punchline) + '</p>' +
+    '<div class="who">Submitted by ' + escapeHtml(j.submitter || 'Anonymous') + ' &middot; ' + new Date(j.created_at).toLocaleDateString() + '</div>' +
+    '<div class="pend-actions">' +
+      '<button class="approve" data-id="' + j.id + '" data-action="approve">Approve</button>' +
+      '<button class="reject" data-id="' + j.id + '" data-action="reject">Reject</button>' +
+    '</div>';
+  div.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('click', function(){ act(j.id, btn.dataset.action, div); });
+  });
+  return div;
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+function loadPending(){
+  var area = document.getElementById('pending-area');
+  area.innerHTML = '<p class="hint">Loading&hellip;</p>';
+  fetch('/api/admin-jokes', { headers: { 'x-admin-key': getKey() } })
+    .then(function(r){
+      if(r.status === 401){ area.innerHTML = '<p style="color:#9C3A28;">Wrong passphrase. <a href="#" id="retry-key">Try again</a>.</p>';
+        document.getElementById('retry-key').addEventListener('click', function(e){ e.preventDefault(); setKey(''); renderKeyBox(); area.innerHTML=''; });
+        return null; }
+      return r.json();
+    })
+    .then(function(data){
+      if(!data) return;
+      area.innerHTML = '';
+      document.getElementById('key-area').innerHTML = '<p class="hint">Signed in for this browser. <a href="#" id="sign-out">Use a different passphrase</a>.</p>';
+      document.getElementById('sign-out').addEventListener('click', function(e){ e.preventDefault(); setKey(''); renderKeyBox(); area.innerHTML=''; });
+      if(!data.pending || data.pending.length === 0){
+        area.innerHTML = '<p class="hint">Nothing waiting for review right now.</p>';
+        return;
+      }
+      data.pending.forEach(function(j){ area.appendChild(jokeCard(j)); });
+    })
+    .catch(function(){ area.innerHTML = '<p style="color:#9C3A28;">Could not reach the server. Try again in a moment.</p>'; });
+}
+
+function act(id, action, cardEl){
+  fetch('/api/admin-jokes', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-admin-key': getKey() },
+    body: JSON.stringify({ id: id, action: action })
+  }).then(function(r){ return r.json(); }).then(function(){ cardEl.remove(); });
+}
+
+if(getKey()){ loadPending(); } else { renderKeyBox(); }
+</script>
+</body>
+</html>

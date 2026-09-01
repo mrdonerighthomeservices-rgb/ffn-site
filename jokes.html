@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fishing &amp; Outdoor Jokes | Fishing Friends Network</title>
+<meta name="description" content="Clean, family-friendly fishing and outdoor jokes. A couple free for everyone, the rest of the bank for free members.">
+<link rel="canonical" href="https://fishingfriendsnetwork.com/jokes.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fishing Friends Network">
+<meta property="og:title" content="Fishing & Outdoor Jokes | Fishing Friends Network">
+<meta property="og:description" content="Clean, family-friendly fishing and outdoor jokes. A couple free for everyone, the rest of the bank for free members.">
+<meta property="og:image" content="https://fishingfriendsnetwork.com/faith-scene-wide.jpg">
+<meta property="og:url" content="https://fishingfriendsnetwork.com/jokes.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fishing & Outdoor Jokes | Fishing Friends Network">
+<meta name="twitter:description" content="Clean, family-friendly fishing and outdoor jokes. A couple free for everyone, the rest of the bank for free members.">
+<meta name="twitter:image" content="https://fishingfriendsnetwork.com/faith-scene-wide.jpg">
+
+<link rel="stylesheet" href="ffn.css">
+<style>
+.joke-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:20px;}
+@media(min-width:700px){.joke-grid{grid-template-columns:1fr 1fr;}}
+.joke-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 22px;}
+.joke-card .q{font-family:'Fraunces',serif;font-weight:700;color:var(--teal);margin-bottom:6px;}
+.joke-card .a{margin:0;}
+.joke-lock{grid-column:1/-1;}
+.submit-box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:26px 24px;max-width:520px;margin-top:20px;}
+.submit-box label{display:block;font-size:.85rem;font-weight:500;margin-bottom:5px;color:var(--teal);}
+.submit-box input,.submit-box textarea{width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:.95rem;background:var(--paper);}
+.submit-box textarea{min-height:70px;resize:vertical;}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
+    <a class="home-pill" href="index.html">&#8962; Home</a>
+    <button class="menu-btn" aria-label="Menu" onclick="var u=document.querySelector('nav ul');u.classList.toggle('open');">Menu<span></span></button>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="jokes.html" class="active">Jokes</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
+    <div class="nav-cta">
+      <a class="btn solid" href="join.html">Join Free</a>
+      <a class="btn" href="login.html">Log In</a><a class="btn" href="support.html">Support</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-head"><div class="inner">
+  <p class="eyebrow">Fishing &amp; Outdoor Jokes</p>
+  <h1>Clean jokes for the truck ride out.</h1>
+  <p>Family-friendly, every one of them. Read a couple below, then join free to open the rest of the bank and submit one of your own.</p>
+</div></div>
+
+<section class="section">
+  <h2>Two on the house</h2>
+  <div class="joke-grid" id="free-jokes">
+    <div class="joke-card"><div class="q">Why do fish avoid the computer?</div><p class="a">They are afraid of the net.</p></div>
+    <div class="joke-card"><div class="q">What do you call a fish with no eye?</div><p class="a">A fsh.</p></div>
+  </div>
+</section>
+
+<section class="section band">
+  <p class="eyebrow" id="rotation-eyebrow">Joke of the Day</p>
+  <h2>A new one on rotation, free once you join.</h2>
+  <div class="joke-grid" id="featured-joke" style="margin-bottom:22px;"></div>
+  <p class="hint" style="color:rgba(242,232,213,.85);margin:0 0 10px;">Want to read the rest of the bank instead of waiting for your turn? It is all right below, once you join.</p>
+  <div class="joke-grid" id="locked-jokes"></div>
+</section>
+
+<section class="section" id="submit">
+  <p class="eyebrow">Add Your Own</p>
+  <h2>Submit a Joke</h2>
+  <p style="max-width:58ch;">Keep it clean and keep it family-friendly, that is the whole rule. A real person reads every submission before it joins the bank.</p>
+  <div id="submit-area"></div>
+</section>
+
+<footer>
+  <div class="footer-wrap">
+    <span>&copy; Fishing Friends Network LLC</span>
+    <span>fishingfriendsnetwork@gmail.com</span>
+    <span><a href="join.html">Join Free</a> &middot; <a href="get-involved.html">Volunteer</a> &middot; <a href="support.html">Support</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a></span>
+  </div>
+</footer>
+
+<script>window.FFN_GATE_MANUAL = true;</script>
+<script src="ffn-gate.js"></script>
+<script>
+// The first two jokes above are hard-coded in the page and open to everyone.
+// Everything below now comes from the real jokes bank (Netlify Database),
+// through /api/jokes -- see that file for the rotation
+// logic (still "one a day," change ROTATION_PERIOD there to switch to
+// weekly). Submissions go to /api/submit-joke as
+// 'pending', and separately still post to Netlify Forms so Jonny's email
+// notification (Site settings > Forms) fires too. Approving or rejecting a
+// pending submission happens on admin-jokes.html, not here.
+function jokeCardHtml(j){
+  return '<div class="joke-card"><div class="q">' + escapeHtml(j.setup) + '</div><p class="a">' + escapeHtml(j.punchline) + '</p></div>';
+}
+function escapeHtml(s){ return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+var jokesData = null; // cached response from the jokes function
+
+function loadJokes(){
+  return fetch('/api/jokes')
+    .then(function(r){ return r.json(); })
+    .then(function(data){ jokesData = data; return data; })
+    .catch(function(){ jokesData = { period: 'day', featured: null, bank: [], total: 0, error: true }; return jokesData; });
+}
+
+function renderFeatured(member){
+  var wrap = document.getElementById('featured-joke');
+  var eyebrow = document.getElementById('rotation-eyebrow');
+  eyebrow.textContent = (jokesData && jokesData.period === 'week') ? 'Joke of the Week' : 'Joke of the Day';
+  if(member){
+    if(jokesData && jokesData.featured){
+      wrap.innerHTML = jokeCardHtml(jokesData.featured);
+    } else {
+      wrap.innerHTML = '<p class="hint">No approved jokes yet, check back soon.</p>';
+    }
+  } else {
+    wrap.innerHTML = '';
+    var lockDiv = document.createElement('div');
+    lockDiv.className = 'joke-lock';
+    lockDiv.appendChild(FFNGate.buildCard(
+      "Today's joke is waiting for you. Join free to see it, and every one after it."
+    ));
+    wrap.appendChild(lockDiv);
+  }
+}
+
+function renderLocked(member){
+  var wrap = document.getElementById('locked-jokes');
+  if(member && jokesData){
+    wrap.innerHTML = (jokesData.bank || []).map(jokeCardHtml).join('');
+  } else {
+    wrap.innerHTML = '';
+  }
+}
+
+function renderSubmit(member){
+  var area = document.getElementById('submit-area');
+  if(member){
+    area.innerHTML =
+      '<form class="submit-box" name="joke-submission" method="POST" data-netlify="true" netlify-honeypot="jbot-field" id="joke-form">' +
+        '<input type="hidden" name="form-name" value="joke-submission">' +
+        '<p style="display:none;"><label>Leave empty: <input name="jbot-field" id="j-bot"></label></p>' +
+        '<label for="j-q">Setup</label>' +
+        '<input type="text" id="j-q" name="setup" required placeholder="Why did the...">' +
+        '<label for="j-a">Punchline</label>' +
+        '<input type="text" id="j-a" name="punchline" required>' +
+        '<label for="j-name">Your name or Fishing Name</label>' +
+        '<input type="text" id="j-name" name="submitter">' +
+        '<button class="btn solid" type="submit" style="width:100%;text-align:center;">Submit My Joke</button>' +
+        '<p style="font-size:.8rem;color:#6b6a63;margin-top:10px;" id="j-status">Goes to FFN for a quick read before it joins the public bank.</p>' +
+      '</form>';
+    document.getElementById('joke-form').addEventListener('submit', handleJokeSubmit);
+  } else {
+    area.appendChild(FFNGate.buildCard(
+      "Submitting a joke is a free-member perk too, so the bank stays clean and everybody who adds to it is a real member."
+    ));
+  }
+}
+
+function handleJokeSubmit(ev){
+  ev.preventDefault();
+  var form = ev.target;
+  var status = document.getElementById('j-status');
+  var setup = document.getElementById('j-q').value.trim();
+  var punchline = document.getElementById('j-a').value.trim();
+  var submitter = document.getElementById('j-name').value.trim();
+  var bot = document.getElementById('j-bot').value;
+  if(!setup || !punchline) return;
+
+  status.textContent = 'Sending…';
+
+  // 1) Straight to Netlify Forms, so Jonny's email notification fires.
+  var fd = new FormData(form);
+  fetch('/', { method: 'POST', body: new URLSearchParams(fd).toString(),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).catch(function(){});
+
+  // 2) Into the real database as 'pending', for admin-jokes.html.
+  fetch('/api/submit-joke', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ setup: setup, punchline: punchline, submitter: submitter, jbotfield: bot })
+  }).then(function(r){ return r.json(); }).then(function(data){
+    if(data && data.ok){
+      form.innerHTML = '<p style="margin:0;">Thank you. Jonny reads every joke before it joins the bank.</p>';
+    } else {
+      status.textContent = (data && data.error) || 'Something went wrong, try again.';
+    }
+  }).catch(function(){
+    status.textContent = 'Could not reach the server. Try again in a bit.';
+  });
+}
+
+Promise.all([loadJokes(), FFNGate.isMember()]).then(function(results){
+  var member = results[1];
+  renderFeatured(member);
+  renderLocked(member);
+  renderSubmit(member);
+});
+</script>
+</body>
+</html>

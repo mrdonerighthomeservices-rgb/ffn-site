@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Permission Slip | Fishing Friends Network</title>
+<meta name="description" content="A simple online permission slip for group fishing events -- free for every family. Sign in a couple minutes, know exactly how the day will run.">
+<link rel="canonical" href="https://fishingfriendsnetwork.com/permission-slip.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fishing Friends Network">
+<meta property="og:title" content="Event Permission Slip | Fishing Friends Network">
+<meta property="og:description" content="A simple online permission slip for group fishing events -- free for every family. Sign in a couple minutes, know exactly how the day will run.">
+<meta property="og:image" content="https://fishingfriendsnetwork.com/faith-scene-wide.jpg">
+<meta property="og:url" content="https://fishingfriendsnetwork.com/permission-slip.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Event Permission Slip | Fishing Friends Network">
+<meta name="twitter:description" content="A simple online permission slip for group fishing events -- free for every family. Sign in a couple minutes, know exactly how the day will run.">
+<meta name="twitter:image" content="https://fishingfriendsnetwork.com/faith-scene-wide.jpg">
+
+<link rel="stylesheet" href="ffn.css">
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
+    <a class="home-pill" href="index.html">&#8962; Home</a>
+    <button class="menu-btn" aria-label="Menu" onclick="var u=document.querySelector('nav ul');u.classList.toggle('open');">Menu<span></span></button>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html" class="active">Event Permission</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
+    <div class="nav-cta">
+      <a class="btn solid" href="join.html">Join Free</a>
+      <a class="btn" href="login.html">Log In</a><a class="btn" href="support.html">Support</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-head"><div class="inner">
+  <p class="eyebrow">Community Fishing Days</p>
+  <h1>Send your kid to fish with us. You will know exactly how it works.</h1>
+  <p>Group sessions, supervised by multiple adults, out in the open, not one-on-one. This is the same kind of permission slip your kid's school sends home, just online. Free for every family, every time.</p>
+</div></div>
+
+<section class="section">
+  <h2>How this is different from mentoring</h2>
+  <div class="grid cols-2" style="margin-top:18px;">
+    <div class="card"><h3>Group Fishing Days</h3><p>What this page is for. Kids fish together in a group, with multiple adults present and visible the whole time. This is a supervised community event, not a one-on-one relationship.</p></div>
+    <div class="card"><h3>One-on-One Mentoring</h3><p>A separate program with its own process. Mentors go through a full background check before ever being paired with a specific child. That is handled through <a href="get-involved.html">Get Involved</a>, not this form.</p></div>
+  </div>
+</section>
+
+<section class="section band">
+  <p class="eyebrow">Why We Ask</p>
+  <h2>Busy parents deserve a place they can trust.</h2>
+  <p style="max-width:64ch;">You should not have to be standing on the bank to know your kid is safe, having fun, and learning something real. This form is how we make sure every adult on-site has what they need to look out for your child: who to call, what to know, and who is allowed to pick them up.</p>
+</section>
+
+<section class="section" id="permission-form">
+  <p class="eyebrow">Permission Slip</p>
+  <h2>Sign your kid up for the next Community Fishing Day</h2>
+  <p style="max-width:58ch;">Takes about two minutes. This covers one event at a time. You will fill this out for each Community Fishing Day your kid attends, so our records always match who is actually coming.</p>
+
+  <form name="permission-slip" method="POST" data-netlify="true" netlify-honeypot="bot-field"
+        style="max-width:560px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:24px;margin-top:20px;">
+    <input type="hidden" name="form-name" value="permission-slip">
+    <p style="display:none;"><label>Leave this empty: <input name="bot-field"></label></p>
+
+    <label for="ps-event" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Which Community Fishing Day?</label>
+    <input type="text" id="ps-event" name="event" required placeholder="e.g. September 13 &ndash; West Newton"
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-parent" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Parent / Guardian name</label>
+    <input type="text" id="ps-parent" name="parent_name" required
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-email" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Email</label>
+    <input type="email" id="ps-email" name="email" required
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-phone" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Phone (best number for event day)</label>
+    <input type="tel" id="ps-phone" name="phone" required
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-child" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Child's name</label>
+    <input type="text" id="ps-child" name="child_name" required
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-age" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Child's age</label>
+    <input type="text" id="ps-age" name="child_age" required
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-emergency" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Emergency contact (name &amp; phone, if different from you)</label>
+    <input type="text" id="ps-emergency" name="emergency_contact"
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-pickup" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Who is allowed to pick up your child that day?</label>
+    <input type="text" id="ps-pickup" name="pickup_authorized" required placeholder="Names of everyone authorized"
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <label for="ps-medical" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Allergies or medical info we should know</label>
+    <textarea id="ps-medical" name="medical_notes" rows="2" placeholder="Write 'none' if not applicable"
+      style="width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);resize:vertical;"></textarea>
+
+    <label style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:8px;">Photo consent</label>
+    <div style="margin-bottom:14px;font-size:.92rem;">
+      <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-weight:400;">
+        <input type="radio" name="photo_consent" value="yes" required style="margin-top:4px;">
+        <span>Yes, FFN may use photos of my child from this event (Fishing Name only, never full name or home location)</span>
+      </label>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;">
+        <input type="radio" name="photo_consent" value="no" required style="margin-top:4px;">
+        <span>No, please do not photograph my child</span>
+      </label>
+    </div>
+
+    <div style="background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:14px;">
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:.9rem;font-weight:400;">
+        <input type="checkbox" name="agreement" required style="margin-top:4px;">
+        <span>I confirm I am this child's parent or legal guardian, I give permission for them to attend this Community Fishing Day, and I understand it is a supervised group event with multiple adults present, not a one-on-one activity.</span>
+      </label>
+    </div>
+
+    <label for="ps-signature" style="display:block;font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Type your full name as your signature</label>
+    <input type="text" id="ps-signature" name="signature" required
+      style="width:100%;padding:10px 12px;margin-bottom:16px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);">
+
+    <button type="submit" class="btn solid" style="width:100%;text-align:center;cursor:pointer;">Sign &amp; Submit</button>
+    <p style="font-size:.8rem;color:#6b6a63;margin:10px 0 0 0;">This permission slip is free for every family, every event. Premium members get a saved family profile that pre-fills most of this automatically. See <a href="pricing.html">Premium</a>.</p>
+  </form>
+</section>
+
+<footer>
+  <div class="footer-wrap">
+    <span>&copy; Fishing Friends Network LLC</span>
+    <span>fishingfriendsnetwork@gmail.com</span>
+    <span><a href="join.html">Join Free</a> &middot; <a href="get-involved.html">Volunteer</a> &middot; <a href="gear-donations.html">Donate Gear</a> &middot; <a href="permission-slip.html">Event Permission</a> &middot; <a href="support.html">Support</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a></span>
+  </div>
+</footer>
+</body>
+</html>

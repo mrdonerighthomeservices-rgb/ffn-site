@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In | Fishing Friends Network</title>
+<meta name="description" content="Log in to your free Fishing Friends Network account.">
+<link rel="canonical" href="https://fishingfriendsnetwork.com/login.html">
+<link rel="stylesheet" href="ffn.css">
+<style>
+.login-wrap{max-width:420px;margin:0 auto;padding:40px 20px 80px;}
+.login-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:24px 22px;}
+.login-card label{font-size:.8rem;font-weight:600;display:block;margin-bottom:4px;color:var(--teal);}
+.login-card input{width:100%;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:.95rem;background:var(--paper);}
+.login-card button{width:100%;background:var(--teal);color:#fff;border:none;padding:12px 20px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;}
+#login-error{color:#a4442f;font-size:.85rem;margin:0 0 12px;min-height:1.2em;}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/><path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="#1B3B36" stroke-width="3.4" stroke-linecap="round"/></svg> Fishing Friends Network</a>
+    <a class="home-pill" href="index.html">&#8962; Home</a>
+    <button class="menu-btn" aria-label="Menu" onclick="var u=document.querySelector('nav ul');u.classList.toggle('open');">Menu<span></span></button>
+    <nav><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="kids-families.html">Kids &amp; Families</a></li><li><a href="education.html">Learn</a></li><li><a href="golden-nuggets.html">Golden Nuggets</a></li><li><a href="lunker-board.html">Lunker Board</a></li><li><a href="jokes.html">Jokes</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="local.html">Local</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a href="gear-donations.html">Donate Gear</a></li><li><a href="permission-slip.html">Event Permission</a></li><li><a href="guides.html">Adult Guides</a></li><li><a href="pricing.html">Premium</a></li></ul></nav>
+    <div class="nav-cta">
+      <a class="btn" href="join.html">Join Free</a>
+      <a class="btn" href="support.html">Support</a>
+    </div>
+  </div>
+</header>
+
+<div class="login-wrap">
+  <p class="eyebrow">Welcome Back</p>
+  <h1>Log In</h1>
+  <form class="login-card" id="login-form">
+    <p id="login-error"></p>
+    <label for="l-email">Email</label>
+    <input type="email" id="l-email" required>
+    <label for="l-password">Password</label>
+    <input type="password" id="l-password" required>
+    <button type="submit" id="login-btn">Log In</button>
+  </form>
+  <p class="hint" style="margin-top:14px;">New here? <a href="join.html">Join free</a> instead.</p>
+</div>
+
+<footer>
+  <div class="footer-wrap">
+    <span>&copy; Fishing Friends Network LLC</span>
+    <span>fishingfriendsnetwork@gmail.com</span>
+    <span><a href="join.html">Join Free</a> &middot; <a href="get-involved.html">Volunteer</a> &middot; <a href="support.html">Support</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a></span>
+  </div>
+</footer>
+
+<script>
+document.getElementById('login-form').addEventListener('submit', function(ev){
+  ev.preventDefault();
+  var errEl = document.getElementById('login-error');
+  var btn = document.getElementById('login-btn');
+  errEl.textContent = '';
+  var email = document.getElementById('l-email').value.trim();
+  var password = document.getElementById('l-password').value;
+  btn.disabled = true; btn.textContent = 'Logging in…';
+
+  fetch('/api/login', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email: email, password: password })
+  }).then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+    .then(function(res){
+      if(!res.ok){
+        errEl.textContent = (res.data && res.data.error) || 'Could not log in.';
+        btn.disabled = false; btn.textContent = 'Log In';
+        return;
+      }
+      // Send returning members back to where they probably wanted to go.
+      var params = new URLSearchParams(location.search);
+      var next = params.get('next');
+      location.href = (next && next.indexOf('//') === -1) ? next : 'index.html';
+    })
+    .catch(function(){
+      errEl.textContent = 'Could not reach the server. Try again in a bit.';
+      btn.disabled = false; btn.textContent = 'Log In';
+    });
+});
+</script>
+</body>
+</html>
