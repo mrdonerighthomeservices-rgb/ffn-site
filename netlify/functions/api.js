@@ -24,13 +24,18 @@
 //   POST /api/delete-catch  members only -- remove one of your own
 //   GET  /api/whoami        is THIS browser really logged in? yes/no
 //
-// Two environment variables are required, set in Netlify (Site
+// Four environment variables are required, set in Netlify (Site
 // configuration > Environment variables), never in this file:
 //   FFN_ADMIN_KEY       the passphrase that unlocks admin-jokes.html
 //   FFN_SESSION_SECRET  a long random string used to sign login sessions
+//   GMAIL_USER          the Gmail address that sends verification email
+//   GMAIL_APP_PASSWORD  a 16-character app password for that address
+//                        (Google Account > Security > App Passwords --
+//                        this is NOT the normal Gmail login password)
 // =====================================================================
 import { getDatabase } from "@netlify/database";
 import crypto from "node:crypto";
+import nodemailer from "nodemailer";
 
 export const config = { path: "/api/*" };
 
@@ -93,6 +98,15 @@ async function ensureSchema(db) {
       )
     `;
     await db.sql`CREATE UNIQUE INDEX IF NOT EXISTS members_email_idx ON members (lower(email))`;
+
+    // Email verification. Added after the table already existed on real
+    // sites, so these are ALTER ... IF NOT EXISTS rather than part of the
+    // CREATE TABLE above -- that keeps this safe to run against a database
+    // that already has members in it.
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS verify_token TEXT`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS verify_expires TIMESTAMP`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS verify_sent_at TIMESTAMP`;
 
     // A member's own catch log. Private to that member: never shown publicly,
     // and never joined to anything that appears on the Lunker Board unless the
@@ -175,6 +189,111 @@ function verifyPassword(password, stored) {
   const b = Buffer.from(check, "hex");
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(a, b);
+}
+
+// ---------------------------------------------------------------------
+// Email verification. Proves a signup actually owns the address they
+// typed, not just that it is shaped like one. Sent through Gmail with an
+// app password (set GMAIL_USER and GMAIL_APP_PASSWORD in Netlify) -- not
+// a paid mail service, because the site does not need volume for this,
+// it needs one email per signup and the occasional resend.
+// ---------------------------------------------------------------------
+let mailer = null;
+function getMailer() {
+  if (mailer) return mailer;
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!user || !pass) return null;
+  mailer = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+  return mailer;
+}
+
+function newVerifyToken() {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+async function sendVerificationEmail(toEmail, toName, token) {
+  const transport = getMailer();
+  if (!transport) {
+    // Do not throw -- a signup should still succeed even if mail is not
+    // configured yet. It just means nobody gets a verification email
+    // until GMAIL_USER / GMAIL_APP_PASSWORD are set.
+    console.error("FFN: GMAIL_USER / GMAIL_APP_PASSWORD not set, skipping verification email.");
+    return false;
+  }
+  const link = `https://fishingfriendsnetwork.com/verify-email.html?token=${token}`;
+  try {
+    await transport.sendMail({
+      from: `"Fishing Friends Network" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "Confirm your Fishing Friends Network account",
+      text:
+        `Hey ${toName || "there"},\n\n` +
+        `Click this link to confirm your account. It is good for 24 hours.\n\n${link}\n\n` +
+        `If you did not sign up for Fishing Friends Network, ignore this email and nothing will happen.\n\n` +
+        `Fishing Friends Network`,
+      html:
+        `<p>Hey ${toName ? toName.replace(/[<>&]/g, "") : "there"},</p>` +
+        `<p>Click below to confirm your account. This link is good for 24 hours.</p>` +
+        `<p><a href="${link}" style="background:#14314D;color:#fff;padding:12px 20px;border-radius:5px;text-decoration:none;display:inline-block;">Confirm My Account</a></p>` +
+        `<p style="color:#4A5560;font-size:.85rem;">If you did not sign up for Fishing Friends Network, ignore this email. Nothing happens until you click.</p>`,
+    });
+    return true;
+  } catch (err) {
+    console.error("FFN: verification email failed to send:", err);
+    return false;
+  }
+}
+
+async function handleVerifyEmail(req, db) {
+  const url = new URL(req.url);
+  const token = (url.searchParams.get("token") || "").trim();
+  if (!token) return json(400, { error: "Missing token." });
+
+  const rows = await db.sql`
+    SELECT id, verify_expires FROM members WHERE verify_token = ${token}
+  `;
+  if (!rows.length) return json(400, { error: "That link is not valid. Request a new one." });
+
+  const row = rows[0];
+  if (!row.verify_expires || new Date(row.verify_expires).getTime() < Date.now()) {
+    return json(400, { error: "That link has expired. Request a new one." });
+  }
+
+  await db.sql`
+    UPDATE members SET email_verified = TRUE, verify_token = NULL, verify_expires = NULL
+    WHERE id = ${row.id}
+  `;
+  return json(200, { ok: true });
+}
+
+// A signed-in member can ask for a fresh link if the first one expired or
+// never arrived. Rate-limited to one send per 60 seconds per account so a
+// stuck retry button cannot hammer Gmail's sending limits.
+async function handleResendVerification(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in first." });
+  if (req.method !== "POST") return json(405, { error: "Method not allowed." });
+
+  const rows = await db.sql`
+    SELECT name, email, email_verified, verify_sent_at FROM members WHERE id = ${memberId}
+  `;
+  if (!rows.length) return json(404, { error: "Account not found." });
+  const member = rows[0];
+  if (member.email_verified) return json(200, { ok: true, already: true });
+
+  if (member.verify_sent_at && Date.now() - new Date(member.verify_sent_at).getTime() < 60 * 1000) {
+    return json(429, { error: "Give it a minute before asking again." });
+  }
+
+  const token = newVerifyToken();
+  const expires = new Date(Date.now() + 1000 * 60 * 60 * 24);
+  await db.sql`
+    UPDATE members SET verify_token = ${token}, verify_expires = ${expires}, verify_sent_at = NOW()
+    WHERE id = ${memberId}
+  `;
+  const sent = await sendVerificationEmail(member.email, member.name, token);
+  return json(200, { ok: true, sent });
 }
 
 function buildSessionCookie(id) {
@@ -327,7 +446,7 @@ async function handleSignup(req, db) {
     return json(400, { error: "Password needs to be at least 8 characters." });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return json(400, { error: "That email doesn't look right." });
+    return json(400, { error: "That email does not look right." });
   }
 
   // Server-side age check. The browser's age gate on join.html can be
@@ -348,13 +467,23 @@ async function handleSignup(req, db) {
   }
 
   const hash = hashPassword(password);
+  const token = newVerifyToken();
+  const expires = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
+
   const rows = await db.sql`
-    INSERT INTO members (account_type, name, email, password_hash, dob, town_or_county, phone)
-    VALUES (${accountType}, ${name}, ${email}, ${hash}, ${dob || null}, ${area || null}, ${phone || null})
+    INSERT INTO members (account_type, name, email, password_hash, dob, town_or_county, phone, verify_token, verify_expires, verify_sent_at)
+    VALUES (${accountType}, ${name}, ${email}, ${hash}, ${dob || null}, ${area || null}, ${phone || null}, ${token}, ${expires}, NOW())
     RETURNING id, name, account_type
   `;
   const member = rows[0];
-  return json(200, { ok: true, name: member.name, account_type: member.account_type }, [
+
+  // The account exists and the member is logged in right away -- verifying
+  // an email proves they own the address, it does not gate the free site.
+  // If the email fails to send, signup still succeeds; sent:false tells
+  // the page to say so instead of promising an email that never left.
+  const sent = await sendVerificationEmail(email, name, token);
+
+  return json(200, { ok: true, name: member.name, account_type: member.account_type, verification_sent: sent }, [
     ["set-cookie", buildSessionCookie(member.id)],
   ]);
 }
@@ -508,9 +637,14 @@ async function handleWhoami(req, db) {
   const cookies = parseCookies(req.headers.get("cookie"));
   const memberId = verifySession(cookies.ffn_session);
   if (!memberId) return json(200, { member: false });
-  const rows = await db.sql`SELECT id, name, account_type FROM members WHERE id = ${memberId}`;
+  const rows = await db.sql`SELECT id, name, account_type, email_verified FROM members WHERE id = ${memberId}`;
   if (!rows.length) return json(200, { member: false });
-  return json(200, { member: true, name: rows[0].name, account_type: rows[0].account_type });
+  return json(200, {
+    member: true,
+    name: rows[0].name,
+    account_type: rows[0].account_type,
+    email_verified: !!rows[0].email_verified,
+  });
 }
 
 // ---------------------------------------------------------------------
@@ -554,6 +688,10 @@ export default async (req) => {
         return await handleSafetyPass(req, db);
       case "safety-status":
         return await handleSafetyStatus(req, db);
+      case "verify-email":
+        return await handleVerifyEmail(req, db);
+      case "resend-verification":
+        return await handleResendVerification(req, db);
       case "whoami":
         return await handleWhoami(req, db);
       default:
