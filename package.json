@@ -3,6 +3,7 @@
   "private": true,
   "description": "Fishing Friends Network website. Static pages plus a small set of Netlify Functions and a Netlify Database for the jokes bank.",
   "dependencies": {
-    "@netlify/database": "latest"
+    "@netlify/database": "latest",
+    "nodemailer": "^6"
   }
 }

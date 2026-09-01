@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>FFN</title>
+<meta name="description" content="Fishing Friends Network. Your catch log, your safety certification, and your people.">
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#14314D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FFN">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14314D; --navy-soft:#1B4568; --bark:#3F6485;
+  --paper:#F4F8FC; --card:#FFFFFF; --parchment:#DCEAF5; --mint:#E4EFF8;
+  --ink:#1B2733; --muted:#4A5560; --line:rgba(27,39,51,.14);
+  --green:#1E8E3E; --green-bright:#4FD675; --gold:#B8860B; --red:#B8362E;
+  --tabbar:76px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  line-height:1.5; overscroll-behavior-y:none;
+}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;color:var(--navy);margin:0 0 .35em;line-height:1.2;}
+
+/* ---- app chrome: a real top bar and a real tab bar, not website nav ---- */
+.appbar{
+  position:sticky; top:0; z-index:20;
+  background:var(--navy); color:#fff;
+  padding:calc(env(safe-area-inset-top) + 14px) 18px 14px;
+  display:flex; align-items:center; gap:10px;
+}
+.appbar svg{width:30px;height:auto;flex:none;}
+.appbar .t{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:1.12rem;letter-spacing:.01em;}
+.appbar .r{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:#A8CFE6;text-transform:uppercase;letter-spacing:.08em;}
+
+main{padding:18px 18px calc(var(--tabbar) + env(safe-area-inset-bottom) + 24px);}
+
+.tabbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:30;
+  background:rgba(255,255,255,.97); backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  display:grid; grid-template-columns:repeat(4,1fr);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tab{
+  background:none;border:none;cursor:pointer;
+  padding:9px 4px 10px; display:flex; flex-direction:column; align-items:center; gap:3px;
+  font-family:'Inter',sans-serif; font-size:.66rem; font-weight:600;
+  color:var(--muted); letter-spacing:.01em;
+}
+.tab .ic{font-size:1.25rem;line-height:1;}
+.tab.on{color:var(--navy);}
+.tab.on .ic{transform:translateY(-1px);}
+
+/* ---- content pieces ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:13px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--bark);margin-bottom:7px;}
+.muted{color:var(--muted);font-size:.9rem;}
+.big{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:2.1rem;color:var(--navy);line-height:1;}
+
+.btn{
+  display:inline-block;width:100%;text-align:center;
+  background:var(--navy);color:#fff;border:none;border-radius:9px;
+  padding:14px 18px;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;
+  cursor:pointer;text-decoration:none;
+}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--line);}
+.btn.green{background:var(--green);}
+.btn+.btn{margin-top:9px;}
+
+input,select{
+  width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:9px;
+  font-family:'Inter',sans-serif;font-size:16px; /* 16px stops iOS zooming on focus */
+  background:var(--paper);color:var(--ink);margin-bottom:11px;
+}
+label{display:block;font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:5px;}
+
+.pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.64rem;
+  letter-spacing:.07em;text-transform:uppercase;padding:4px 10px;border-radius:999px;}
+.pill.ok{background:#E8F5E9;color:#1B6B2B;}
+.pill.no{background:#FBEAE8;color:var(--red);}
+.pill.wait{background:#FFF4D6;color:#7A5410;}
+
+.entry{display:flex;gap:11px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line);}
+.entry:last-child{border-bottom:none;}
+.entry .sp{font-weight:600;color:var(--navy);}
+.entry .me{font-size:.82rem;color:var(--muted);}
+.entry .fg{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:.84rem;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;}
+.hide{display:none!important;}
+.center{text-align:center;}
+.err{color:var(--red);font-size:.86rem;margin:6px 0 0;}
+.spin{text-align:center;color:var(--muted);padding:36px 0;font-size:.9rem;}
+a{color:var(--navy);}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <svg viewBox="-5 -5 90 54" aria-hidden="true">
+    <path d="M 5 8 L 24 22 C 38 4, 60 4, 76 22 C 60 40, 38 40, 24 22 L 5 36"
+          fill="none" stroke="#4FD675" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="t">FFN</span>
+  <span class="r" id="whobar"></span>
+</div>
+
+<main id="view"><div class="spin">Loading…</div></main>
+
+<!-- Shown only when the app is being viewed in a browser tab rather than
+     from the home screen. Once it is installed this never appears again. -->
+<div id="installbar" class="hide" style="position:fixed;left:0;right:0;bottom:calc(var(--tabbar) + env(safe-area-inset-bottom));z-index:40;background:var(--navy);color:#fff;padding:14px 18px calc(14px);box-shadow:0 -6px 20px rgba(15,36,56,.28);">
+  <div style="display:flex;gap:12px;align-items:flex-start;">
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:.94rem;margin-bottom:3px;">Put FFN on your home screen</div>
+      <div id="installhow" style="font-size:.84rem;color:#A8CFE6;line-height:1.45;"></div>
+    </div>
+    <button id="installgo" class="hide" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:11px 15px;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap;">Install</button>
+    <button id="installx" aria-label="Dismiss" style="background:none;border:none;color:#A8CFE6;font-size:1.3rem;line-height:1;cursor:pointer;padding:0 2px;">&times;</button>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <button class="tab on" data-v="home"><span class="ic">🏠</span>Home</button>
+  <button class="tab" data-v="log"><span class="ic">🎣</span>My Log</button>
+  <button class="tab" data-v="safety"><span class="ic">🦺</span>Safety</button>
+  <button class="tab" data-v="more"><span class="ic">☰</span>More</button>
+</nav>
+
+<script>
+// =====================================================================
+// FFN app shell.
+//
+// This is the app, not the website. It never loads a website page --
+// it swaps views in place and talks to the same /api/ endpoints the
+// site uses. That is on purpose: one back end, two front doors.
+// =====================================================================
+var ME = null;          // whoami result, refreshed on load and after login
+var VIEW = 'home';
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function api(path, opts){
+  opts = opts || {};
+  opts.credentials = 'same-origin';
+  return fetch('/api/' + path, opts).then(function(r){
+    return r.json().then(function(d){ return { ok:r.ok, status:r.status, data:d }; })
+      .catch(function(){ return { ok:r.ok, status:r.status, data:{} }; });
+  });
+}
+
+function el(id){ return document.getElementById(id); }
+function render(html){ el('view').innerHTML = html; }
+
+function refreshMe(){
+  return api('whoami').then(function(r){
+    ME = (r.data && r.data.member) ? r.data : null;
+    el('whobar').textContent = ME ? esc(ME.name) : '';
+    return ME;
+  }).catch(function(){ ME = null; return null; });
+}
+
+// ---------------------------------------------------------------- HOME
+function viewHome(){
+  if(!ME) return viewSignedOut();
+  render(
+    '<h1>Hey ' + esc(ME.name.split(' ')[0]) + '.</h1>' +
+    '<p class="muted" style="margin-top:-4px;">Good day to be on the water.</p>' +
+    (ME.email_verified === false
+      ? '<div class="card" style="border-left:4px solid var(--gold);">' +
+          '<div class="eyebrow">One Thing Left</div>' +
+          '<p style="margin:0 0 12px;">Your email is not confirmed yet. Check your inbox for the link we sent.</p>' +
+          '<button class="btn ghost" id="resend">Send The Link Again</button>' +
+          '<p class="err hide" id="rs"></p>' +
+        '</div>'
+      : '') +
+    '<div class="card" id="statcard"><div class="spin">Checking your log…</div></div>' +
+    '<div class="card">' +
+      '<div class="eyebrow">Quick</div>' +
+      '<button class="btn" data-go="log">Log A Fish</button>' +
+      '<button class="btn ghost" data-go="safety">Safety Test</button>' +
+    '</div>'
+  );
+
+  var rb = el('resend');
+  if(rb) rb.addEventListener('click', function(){
+    rb.disabled = true; rb.textContent = 'Sending…';
+    api('resend-verification', { method:'POST' }).then(function(r){
+      var s = el('rs'); s.classList.remove('hide');
+      s.style.color = r.ok ? 'var(--green)' : 'var(--red)';
+      s.textContent = r.ok ? 'Sent. Check your email.' : ((r.data && r.data.error) || 'Could not send it.');
+      rb.textContent = 'Send The Link Again'; rb.disabled = false;
+    });
+  });
+
+  api('catches').then(function(r){
+    var c = el('statcard'); if(!c) return;
+    if(!r.ok){ c.innerHTML = '<p class="muted" style="margin:0;">Could not load your log.</p>'; return; }
+    var n = (r.data.catches || []).length;
+    var best = (r.data.bests || [])[0];
+    c.innerHTML =
+      '<div class="eyebrow">Your Log</div>' +
+      '<div class="big">' + n + '</div>' +
+      '<p class="muted" style="margin:2px 0 0;">' + (n === 1 ? 'fish logged' : 'fish logged') + '</p>' +
+      (best ? '<p class="muted" style="margin:10px 0 0;">Best so far: <strong style="color:var(--navy);">' +
+        esc(best.species) + '</strong>' +
+        (best.length_in ? ' at ' + Number(best.length_in) + ' in' : '') + '</p>' : '');
+  });
+}
+
+function viewSignedOut(){
+  render(
+    '<div class="center" style="padding:26px 0 10px;">' +
+      '<h1>Fishing Friends Network</h1>' +
+      '<p class="muted">Log in to get to your catch log, your safety certification, and your people.</p>' +
+    '</div>' +
+    '<div class="card">' +
+      '<label for="e">Email</label><input type="email" id="e" autocomplete="email" inputmode="email">' +
+      '<label for="p">Password</label><input type="password" id="p" autocomplete="current-password">' +
+      '<button class="btn" id="li">Log In</button>' +
+      '<p class="err hide" id="le"></p>' +
+    '</div>' +
+    '<div class="card center">' +
+      '<p class="muted" style="margin:0 0 12px;">No account yet? Joining is free and takes a minute.</p>' +
+      '<a class="btn ghost" href="/join.html">Join Free</a>' +
+    '</div>'
+  );
+
+  function go(){
+    var b = el('li'), err = el('le');
+    err.classList.add('hide');
+    b.disabled = true; b.textContent = 'Logging in…';
+    api('login', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ email: el('e').value.trim(), password: el('p').value })
+    }).then(function(r){
+      if(!r.ok){
+        err.textContent = (r.data && r.data.error) || 'That did not work.';
+        err.classList.remove('hide');
+        b.disabled = false; b.textContent = 'Log In'; return;
+      }
+      refreshMe().then(function(){ show('home'); });
+    }).catch(function(){
+      err.textContent = 'Could not reach the server.'; err.classList.remove('hide');
+      b.disabled = false; b.textContent = 'Log In';
+    });
+  }
+  el('li').addEventListener('click', go);
+  el('p').addEventListener('keydown', function(ev){ if(ev.key === 'Enter') go(); });
+}
+
+// ----------------------------------------------------------------- LOG
+function viewLog(){
+  if(!ME) return viewSignedOut();
+  render('<h1>My catch log</h1><p class="muted" style="margin-top:-4px;">Private to you. Nobody else sees this.</p>' +
+         '<div class="card">' +
+           '<label for="sp">What did you catch?</label>' +
+           '<input type="text" id="sp" placeholder="Smallmouth bass" maxlength="60">' +
+           '<div class="two">' +
+             '<div><label for="ln">Length (in)</label><input type="number" step="0.25" min="0" id="ln" inputmode="decimal"></div>' +
+             '<div><label for="wt">Weight (lb)</label><input type="number" step="0.01" min="0" id="wt" inputmode="decimal"></div>' +
+           '</div>' +
+           '<label for="wa">Water</label><input type="text" id="wa" placeholder="Allegheny River" maxlength="120">' +
+           '<label for="dt">Date</label><input type="date" id="dt">' +
+           '<button class="btn green" id="add">Add To My Log</button>' +
+           '<p class="err hide" id="ae"></p>' +
+         '</div>' +
+         '<div id="list"><div class="spin">Loading…</div></div>');
+
+  el('add').addEventListener('click', function(){
+    var sp = el('sp').value.trim(), err = el('ae'), b = el('add');
+    err.classList.add('hide');
+    if(!sp){ err.textContent = 'Put in what you caught.'; err.classList.remove('hide'); return; }
+    b.disabled = true; b.textContent = 'Saving…';
+    api('catches', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ species:sp, length_in:el('ln').value, weight_lb:el('wt').value,
+                             water:el('wa').value.trim(), caught_on:el('dt').value, notes:'' })
+    }).then(function(r){
+      b.disabled = false; b.textContent = 'Add To My Log';
+      if(!r.ok){ err.textContent = (r.data && r.data.error) || 'Could not save it.'; err.classList.remove('hide'); return; }
+      ['sp','ln','wt','wa','dt'].forEach(function(i){ el(i).value = ''; });
+      loadList();
+    });
+  });
+  loadList();
+}
+
+function loadList(){
+  api('catches').then(function(r){
+    var w = el('list'); if(!w) return;
+    if(!r.ok){ w.innerHTML = '<p class="muted">Could not load your log.</p>'; return; }
+    var rows = r.data.catches || [];
+    if(!rows.length){ w.innerHTML = '<div class="card center"><p class="muted" style="margin:0;">Nothing in here yet. The first one is the hardest.</p></div>'; return; }
+    w.innerHTML = '<div class="card"><div class="eyebrow">' + rows.length + (rows.length===1?' Fish':' Fish') + '</div>' +
+      rows.map(function(e){
+        var f = [];
+        if(e.length_in != null) f.push(Number(e.length_in) + ' in');
+        if(e.weight_lb != null) f.push(Number(e.weight_lb) + ' lb');
+        var meta = [e.caught_on ? new Date(e.caught_on).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}) : '', e.water].filter(Boolean).join(' · ');
+        return '<div class="entry"><span class="sp">' + esc(e.species) + '</span>' +
+               (meta ? '<span class="me">' + esc(meta) + '</span>' : '') +
+               '<span class="fg">' + esc(f.join(' · ')) + '</span></div>';
+      }).join('') + '</div>';
+  });
+}
+
+// -------------------------------------------------------------- SAFETY
+function viewSafety(){
+  if(!ME) return viewSignedOut();
+  render('<h1>Safety first, ethics second, fishing third.</h1>' +
+         '<div class="card" id="sc"><div class="spin">Checking…</div></div>');
+  api('safety-status').then(function(r){
+    var c = el('sc'); if(!c) return;
+    if(r.data && r.data.certified){
+      var when = r.data.passed_at ? new Date(r.data.passed_at).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}) : '';
+      c.innerHTML = '<span class="pill ok">Safety Certified</span>' +
+        '<h2 style="margin-top:13px;">You passed.</h2>' +
+        '<p class="muted">Scored ' + r.data.score + ' out of ' + r.data.total + (when ? ' on ' + esc(when) : '') + '.</p>' +
+        '<a class="btn ghost" href="/safety-test.html">Take It Again</a>';
+    } else {
+      c.innerHTML = '<span class="pill wait">Not Certified Yet</span>' +
+        '<h2 style="margin-top:13px;">Ten questions.</h2>' +
+        '<p class="muted">Get eight right and you are Safety Certified. Miss a few and take it again. There is no limit.</p>' +
+        '<a class="btn green" href="/safety-test.html">Take The Test</a>';
+    }
+  });
+}
+
+// ---------------------------------------------------------------- MORE
+function viewMore(){
+  var links = [
+    ['/learn-to-fish.html','Learn To Fish','Safety guides, species, and the rules'],
+    ['/golden-nuggets.html','Golden Nuggets','Fishing wisdom that goes past fishing'],
+    ['/lunker-board.html','Lunker Board','See what everybody is catching'],
+    ['/jokes.html','Jokes','Somebody has to keep it light'],
+    ['/local.html','Local','Find your people near you']
+  ];
+  render('<h1>More</h1>' +
+    '<div class="card">' + links.map(function(l){
+      return '<a href="' + l[0] + '" style="display:block;padding:13px 0;border-bottom:1px solid var(--line);text-decoration:none;">' +
+        '<strong style="color:var(--navy);">' + l[1] + '</strong>' +
+        '<div class="muted" style="font-size:.84rem;">' + l[2] + '</div></a>';
+    }).join('') + '</div>' +
+    (ME
+      ? '<div class="card"><div class="eyebrow">Account</div>' +
+          '<p class="muted" style="margin:0 0 12px;">Signed in as ' + esc(ME.name) + '.</p>' +
+          '<button class="btn ghost" id="out">Log Out</button></div>'
+      : '<div class="card center"><a class="btn" href="/join.html">Join Free</a></div>')
+  );
+  var o = el('out');
+  if(o) o.addEventListener('click', function(){
+    fetch('/api/logout', { credentials:'same-origin' }).then(function(){
+      ME = null; el('whobar').textContent = ''; show('home');
+    });
+  });
+}
+
+// --------------------------------------------------------------- ROUTER
+var VIEWS = { home:viewHome, log:viewLog, safety:viewSafety, more:viewMore };
+
+function show(v){
+  VIEW = v;
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+    t.classList.toggle('on', t.dataset.v === v);
+  });
+  (VIEWS[v] || viewHome)();
+  window.scrollTo(0,0);
+}
+
+Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+  t.addEventListener('click', function(){ show(t.dataset.v); });
+});
+
+// Buttons inside a view can ask for another view.
+document.addEventListener('click', function(ev){
+  var g = ev.target.closest && ev.target.closest('[data-go]');
+  if(g) show(g.dataset.go);
+});
+
+refreshMe().then(function(){ show('home'); });
+
+// ---------------------------------------------------- INSTALL PROMPT
+// Android and desktop Chrome hand us a real install event we can fire from
+// a button. iOS gives us nothing, so there the only honest thing to do is
+// tell the person which buttons to press.
+(function(){
+  var bar = el('installbar'), how = el('installhow'), go = el('installgo'), x = el('installx');
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (standalone) return;                                  // already installed
+  try { if (localStorage.getItem('ffn-install-hidden')) return; } catch(e){}
+
+  var ua = navigator.userAgent || '';
+  var iOS = /iPad|iPhone|iPod/.test(ua) || (/Mac/.test(ua) && navigator.maxTouchPoints > 1);
+  var deferred = null;
+
+  window.addEventListener('beforeinstallprompt', function(ev){
+    ev.preventDefault(); deferred = ev;
+    how.textContent = 'One tap and it lives with your other apps.';
+    go.classList.remove('hide');
+    bar.classList.remove('hide');
+  });
+
+  if (iOS) {
+    how.innerHTML = 'Tap the Share button at the bottom of Safari, then scroll down and tap <strong>Add to Home Screen</strong>.';
+    bar.classList.remove('hide');
+  } else {
+    // Give Chrome a moment to fire its event before falling back to words.
+    setTimeout(function(){
+      if (bar.classList.contains('hide')) {
+        how.innerHTML = 'Open your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.';
+        bar.classList.remove('hide');
+      }
+    }, 1400);
+  }
+
+  go.addEventListener('click', function(){
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(){ deferred = null; bar.classList.add('hide'); });
+  });
+  x.addEventListener('click', function(){
+    bar.classList.add('hide');
+    try { localStorage.setItem('ffn-install-hidden','1'); } catch(e){}
+  });
+})();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('/service-worker.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>

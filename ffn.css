@@ -158,6 +158,20 @@ footer{border-top:1px solid var(--line);padding:32px 20px 44px;margin-top:20px;}
   .home-pill{display:inline-flex;}
   header{position:relative;}
   .cols-2,.cols-3{grid-template-columns:1fr;}
+
+  /* The three header buttons used to stay full size and wrap onto their
+     own row, so the header ate a third of a phone screen before any
+     content showed. Shrink them and let them sit on the same line. */
+  .nav-cta{gap:6px;}
+  .nav-cta .btn{padding:8px 11px;font-size:.68rem;letter-spacing:.03em;}
+}
+@media(max-width:520px){
+  /* Support is in the menu and in the footer on every page, so it does
+     not need to be a third button competing in a cramped header. */
+  .nav-cta a[href="support.html"]{display:none;}
+  .nav-wrap{padding:11px 16px;gap:10px;}
+  .brand{font-size:.95rem;gap:7px;}
+  .brand svg{width:32px;height:auto;}
 }
 
 /* ---- hero photo as a faint background on every page ---- */

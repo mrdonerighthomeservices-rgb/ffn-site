@@ -107,11 +107,29 @@ nav a.active{color:var(--teal);border-bottom:2px solid var(--amber);}
 .hero .btn:hover{background:#E3EEF7;color:#0F2438;}
 .hero .btn.solid{background:var(--amber);border-color:var(--amber);color:#0F2438;}
 .hero .btn.solid:hover{background:#c4913a;border-color:#c4913a;color:#0F2438;}
-.hero .ichthys-badge span{color:#CFE2F0;text-shadow:0 1px 8px rgba(8,20,32,.6);}
+/* This line sits over the brightest part of the photo, where a light blue
+   with a soft shadow disappeared. White plus a real shadow holds up. */
+.hero .ichthys-badge span{color:#FFFFFF;text-shadow:0 1px 3px rgba(8,20,32,.9),0 2px 14px rgba(8,20,32,.75);}
 
 /* ichthys mark */
 .ichthys-badge{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
 .ichthys-badge span{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#23577E;}
+/* On a narrow phone this line used to break as "FUN FOR / EVERYONE" and
+   collide with the headline under it. Stack it under the mark instead,
+   and let the letter-spacing loosen only when there is room for it. */
+@media(max-width:520px){
+  /* Support lives in the menu and the footer, so it does not need to be a
+     third button crowding the header on a phone. */
+  .nav-cta a[href="support.html"]{display:none;}
+  .nav-wrap{padding:11px 16px;gap:10px;}
+  .brand{font-size:.95rem;gap:7px;}
+  .brand svg{width:32px;height:auto;}
+}
+@media(max-width:560px){
+  .ichthys-badge{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:14px;}
+  .ichthys-badge svg{width:62px;height:auto;}
+  .ichthys-badge span{font-size:.66rem;letter-spacing:.1em;}
+}
 
 /* sections */
 .section{max-width:1140px;margin:0 auto;padding:56px 22px;}
@@ -162,6 +180,11 @@ footer{border-top:1px solid rgba(27,39,51,.1);padding:34px 22px 46px;}
   .menu-btn{display:flex;}
   header{position:relative;}
   .cols-2,.cols-3{grid-template-columns:1fr;}
+  /* NOTE: this page carries its own copy of the site stylesheet instead of
+     linking ffn.css, so header fixes have to be repeated here or the home
+     page drifts away from every other page. See the note in the summary. */
+  .nav-cta{gap:6px;}
+  .nav-cta .btn{padding:8px 11px;font-size:.68rem;letter-spacing:.03em;}
   .hero{
     background-image:url('faith-scene.jpg');
     background-position:center 24%;
@@ -195,8 +218,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;
   <div class="nav-wrap">
     <a class="brand" href="index.html">
       <svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true">
-        <path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/>
-        <path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M 5 8 L 24 22 C 38 4, 60 4, 76 22 C 60 40, 38 40, 24 22 L 5 36" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       Fishing Friends Network
     </a>
@@ -227,8 +249,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;
   <div class="hero-inner">
     <div class="ichthys-badge">
       <svg width="80" height="48" viewBox="-5 -5 90 54" aria-label="Ichthys">
-        <path d="M6 7 C 32 1, 60 7, 76 22" fill="none" stroke="#E3EEF7" stroke-width="3.6" stroke-linecap="round"/>
-        <path d="M6 37 C 32 43, 60 37, 76 22" fill="none" stroke="#E3EEF7" stroke-width="3.6" stroke-linecap="round"/>
+        <path d="M 5 8 L 24 22 C 38 4, 60 4, 76 22 C 60 40, 38 40, 24 22 L 5 36" fill="none" stroke="#E3EEF7" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Fishing &middot; Faith &middot; Fun for Everyone</span>
     </div>
@@ -310,6 +331,20 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;
   </div>
 </section>
 
+<!-- ================= THE APP ================= -->
+<section class="section">
+  <p class="eyebrow">On Your Phone</p>
+  <h2>Get the app.</h2>
+  <p>Your catch log, your safety certification, and your people, on your home screen. It works on the bank with one bar of signal. Free, same as everything else.</p>
+  <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:22px;">
+    <img src="icons/icon-192.png" alt="The FFN app icon" width="84" height="84" style="border-radius:20%;flex:none;box-shadow:0 4px 14px rgba(20,49,77,.22);">
+    <div>
+      <a class="btn solid" href="app.html">Download The App</a>
+      <p style="font-size:.85rem;color:#4A5560;margin:10px 0 0;max-width:42ch;">Opens the app and shows you how to put it on your home screen. Takes about ten seconds.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ================= SUPPORT ================= -->
 <section class="section band">
   <p class="eyebrow">Support the Mission</p>
@@ -322,7 +357,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;
   <div class="footer-wrap">
     <span>&copy; Fishing Friends Network LLC</span>
     <span>fishingfriendsnetwork@gmail.com</span>
-    <span><a href="join.html">Join Free</a> &middot; <a href="get-involved.html">Volunteer</a> &middot; <a href="support.html">Support</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a></span>
+    <span><a href="app.html"><strong>Download the App</strong></a> &middot; <a href="join.html">Join Free</a> &middot; <a href="get-involved.html">Volunteer</a> &middot; <a href="support.html">Support</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a></span>
   </div>
 </footer>
 

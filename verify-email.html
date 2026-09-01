@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirm Your Account | Fishing Friends Network</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://fishingfriendsnetwork.com/verify-email.html">
+<link rel="stylesheet" href="ffn.css">
+<style>
+.vwrap{max-width:480px;margin:60px auto;text-align:center;}
+.vcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:38px 30px;}
+.vicon{font-size:2.6rem;margin-bottom:14px;}
+.vcard h1{font-size:1.5rem;}
+.vcard p{color:#4A5560;}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><svg width="38" height="23" viewBox="-5 -5 90 54" aria-hidden="true"><path d="M 5 8 L 24 22 C 38 4, 60 4, 76 22 C 60 40, 38 40, 24 22 L 5 36" fill="none" stroke="var(--brand-green)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Fishing Friends Network</a>
+    <a class="home-pill" href="index.html">&#8962; Home</a>
+  </div>
+</header>
+
+<div class="vwrap">
+  <div class="vcard" id="vcard">
+    <div class="vicon">⏳</div>
+    <h1>Checking your link.</h1>
+    <p>Give it a second.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-wrap">
+    <span>&copy; Fishing Friends Network LLC</span>
+    <span>fishingfriendsnetwork@gmail.com</span>
+    <span><a href="app.html"><strong>Download the App</strong></a> &middot; <a href="join.html">Join Free</a> &middot; <a href="support.html">Support</a></span>
+  </div>
+</footer>
+
+<script>
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+var params = new URLSearchParams(window.location.search);
+var token = params.get('token');
+var card = document.getElementById('vcard');
+
+function show(icon, title, body){
+  card.innerHTML = '<div class="vicon">' + icon + '</div><h1>' + esc(title) + '</h1><p>' + body + '</p>';
+}
+
+if (!token) {
+  show('❓', 'Nothing to confirm here.', 'This page needs a link from your email. Check your inbox for the message from Fishing Friends Network.');
+} else {
+  fetch('/api/verify-email?token=' + encodeURIComponent(token))
+    .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+    .then(function(res){
+      if (res.ok && res.data.ok) {
+        show('✅', 'You are confirmed.', 'Your account is verified. Go fish. <a href="index.html">Back to the site</a>.');
+      } else {
+        show('⚠️', 'That link did not work.', esc((res.data && res.data.error) || 'It may have expired.') + ' <a href="login.html">Log in</a> and request a new one from your account.');
+      }
+    })
+    .catch(function(){
+      show('⚠️', 'Could not reach the server.', 'Try again in a bit, or <a href="login.html">log in</a> and request a new link.');
+    });
+}
+</script>
+</body>
+</html>
