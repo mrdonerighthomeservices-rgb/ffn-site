@@ -36,20 +36,45 @@
    loads this file, gate or no gate.
    ============================================================ */
 window.FFNGate = (function () {
-  var memberPromise = null;
+  var whoamiPromise = null;
 
-  function isMember() {
-    if (!memberPromise) {
-      memberPromise = fetch('/api/whoami', { credentials: 'same-origin' })
+  // Shared, cached fetch of the full /api/whoami payload (member,
+  // account_type, name, email_verified, premium, premium_since).
+  // isMember(), getAccountType(), and getMemberInfo() all read from this
+  // instead of hitting the network twice.
+  function whoami() {
+    if (!whoamiPromise) {
+      whoamiPromise = fetch('/api/whoami', { credentials: 'same-origin' })
         .then(function (r) { return r.ok ? r.json() : { member: false }; })
-        .then(function (data) { return !!data.member; })
         .catch(function () {
-          // Network or server hiccup -- fail CLOSED for a gate (don't grant
-          // access on an error), but don't leave the caller hanging.
-          return false;
+          // Network or server hiccup -- fail CLOSED (treat as not logged
+          // in), but don't leave the caller hanging.
+          return { member: false };
         });
     }
-    return memberPromise;
+    return whoamiPromise;
+  }
+
+  function isMember() {
+    return whoami().then(function (data) { return !!data.member; });
+  }
+
+  // 'youth' or 'adult' for a real logged-in member, null if nobody is
+  // logged in (or the account predates account_type). Set once at
+  // signup from the same age check used everywhere else on the site --
+  // see join.html's age gate and /api/signup's server-side check.
+  function getAccountType() {
+    return whoami().then(function (data) {
+      return data.member ? (data.account_type || null) : null;
+    });
+  }
+
+  // Full payload for pages that need more than a yes/no, e.g.
+  // golden-nuggets.html's free-vs-Premium tiering. Always returns an
+  // object; check .member first, the rest only mean something when
+  // that is true.
+  function getMemberInfo() {
+    return whoami();
   }
 
   function buildCard(msg) {
@@ -62,7 +87,7 @@ window.FFNGate = (function () {
       '<h2>Join Free to Keep Looking Around</h2>' +
       '<p>' + msgText + '</p>' +
       '<a class="btn solid" href="join.html">Join Free</a>' +
-      '<p class="fine">Already have an account? <a href="login.html">Log in</a>.</p>';
+      '<p class="fine">Free, no credit card needed. Already have an account? <a href="login.html">Log in</a>.</p>';
     return div;
   }
 
@@ -139,5 +164,5 @@ window.FFNGate = (function () {
   if (!window.FFN_GATE_MANUAL) autoFullPageGate();
   runHeaderSwap();
 
-  return { isMember: isMember, buildCard: buildCard, showFullPage: showFullPage };
+  return { isMember: isMember, getAccountType: getAccountType, getMemberInfo: getMemberInfo, buildCard: buildCard, showFullPage: showFullPage };
 })();

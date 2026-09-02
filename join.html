@@ -114,7 +114,7 @@ input[type=file]{display:none;}
 <div id="step-signup">
   <span class="tag">Step 1 of 3</span>
   <h1>Join Fishing Friends Network</h1>
-  <p class="hint">Three fields. Everything else comes later and is optional.</p>
+  <p class="hint">Three fields. Everything else comes later and is optional. Free, no credit card needed.</p>
   <form class="card" name="ffn-signup" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="return doSignup(event)">
     <input type="hidden" name="form-name" value="ffn-signup">
     <p style="display:none;"><label>Leave empty: <input name="bot-field"></label></p>
@@ -128,13 +128,13 @@ input[type=file]{display:none;}
       <input type="text" id="su-name" name="name">
 
       <label for="su-email">Email</label>
-      <input type="email" id="su-email" name="email">
+      <input type="email" id="su-email" name="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false">
 
       <label for="su-area">Town or county</label>
       <input type="text" id="su-area" name="area" placeholder="Helps us know where to start">
 
       <label for="su-password">Password</label>
-      <input type="password" id="su-password" name="password" minlength="8" placeholder="At least 8 characters">
+      <input type="password" id="su-password" name="password" minlength="8" placeholder="At least 8 characters" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
       <p class="hint" style="margin-top:-8px;">This is what gets you back in next time. Nobody at FFN can see it.</p>
 
       <input type="hidden" id="su-type" name="account_type" value="">
@@ -403,14 +403,21 @@ function doSignup(ev){
   var btn = document.querySelector('#su-rest button[type=submit]');
   if(btn){ btn.disabled = true; btn.textContent = 'Creating your account…'; }
 
+  // A weak connection can leave this hanging with no answer either way.
+  // Give it 12 seconds, then say so instead of spinning forever.
+  var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 12000) : null;
+
   fetch('/api/signup', {
     method: 'POST',
+    credentials: 'same-origin',
+    signal: ctrl ? ctrl.signal : undefined,
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       name: name, email: email, password: password, dob: dob, area: area,
       account_type: state.isYouth ? 'youth' : 'adult'
     })
-  }).then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+  }).then(function(r){ if(timer) clearTimeout(timer); return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
     .then(function(res){
       if(!res.ok){
         errEl.textContent = (res.data && res.data.error) || 'Something went wrong. Try again.';
@@ -422,6 +429,7 @@ function doSignup(ev){
       go('setup');
     })
     .catch(function(){
+      if(timer) clearTimeout(timer);
       errEl.textContent = 'Could not reach the server. Try again in a bit.';
       if(btn){ btn.disabled = false; btn.textContent = 'Create My Free Account'; }
     });

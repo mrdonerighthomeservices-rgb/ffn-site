@@ -1,0 +1,858 @@
+// =====================================================================
+// FFN — the whole back end, in one file.
+//
+// This single file replaces what used to be seven separate files inside a
+// netlify/functions folder. It was combined so the site could be uploaded
+// from an iPad, which cannot upload folders. Nothing about how it works
+// changed; the endpoints are just routed inside here instead of by
+// filename.
+//
+// After this file is uploaded, it must be renamed to
+//   netlify/functions/api.js
+// on GitHub (typing that path into the filename box creates the folders).
+//
+// Endpoints, all under /api/ :
+//   GET  /api/jokes         public — approved joke bank + today's pick
+//   POST /api/submit-joke   public — save a submission as 'pending'
+//   GET  /api/admin-jokes   Jonny only — list pending submissions
+//   POST /api/admin-jokes   Jonny only — approve or reject one
+//   POST /api/signup        create a real member account, set session
+//   POST /api/login         log an existing member in, set session
+//   POST /api/forgot-password  email a reset link, always answers the same
+//   POST /api/reset-password   set a new password from that link's token
+//   GET  /api/logout        clear the session cookie
+//   GET  /api/catches       members only -- your own catch log + bests
+//   POST /api/catches       members only -- add one catch
+//   POST /api/delete-catch  members only -- remove one of your own
+//   GET  /api/whoami        is THIS browser really logged in? yes/no
+//
+// Four environment variables are required, set in Netlify (Site
+// configuration > Environment variables), never in this file:
+//   FFN_ADMIN_KEY       the passphrase that unlocks admin-jokes.html
+//   FFN_SESSION_SECRET  a long random string used to sign login sessions
+//   GMAIL_USER          the Gmail address that sends verification email
+//   GMAIL_APP_PASSWORD  a 16-character app password for that address
+//                        (Google Account > Security > App Passwords --
+//                        this is NOT the normal Gmail login password)
+// =====================================================================
+import { getDatabase } from "@netlify/database";
+import crypto from "node:crypto";
+// nodemailer is loaded lazily, inside a try/catch, further down. It is NOT
+// imported at the top on purpose: a missing or broken mail library must
+// never be able to stop somebody from creating an account.
+
+export const config = { path: "/api/*" };
+
+const ROTATION_PERIOD = "day"; // "day" or "week" — change this one line to switch
+
+// ---------------------------------------------------------------------
+// Schema. There is no migrations folder any more (folders again), so the
+// tables are created on first use instead. CREATE TABLE IF NOT EXISTS is
+// safe to run on every cold start; it does nothing once the tables exist.
+// ---------------------------------------------------------------------
+const SEED_JOKES = [
+  ["Why did the angler bring string cheese to the lake?", "In case he needed to reel it in."],
+  ["What do you call a fish that needs help with his vocals?", "Auto-tuna."],
+  ["Why are fish so easy to weigh?", "They have their own scales."],
+  ["What did the fisherman say to the magician?", "Pick a cod, any cod."],
+  ["Why did the fish blush?", "Because it saw the ocean's bottom."],
+  ["What is a fish's favorite instrument?", "The bass."],
+  ["How do fish stay in touch?", "They use a shell phone, or they just drop a line."],
+  ["Why do fishermen make bad campers?", "They always cast their tents in the wrong spot."],
+  ["What kind of fish goes well with peanut butter?", "Jellyfish."],
+  ["Why was the fisherman's wallet always empty?", "He kept throwing his cash back."],
+  ["What do you call two fish that finish each other's sentences?", "Sole mates."],
+  ["Why did the trout refuse to play cards?", "He was afraid of the net gain."],
+  ["What is a lake's favorite kind of music?", "Anything with a good current."],
+  ["Why did the camper bring a ladder into the woods?", "He heard the trail markers were pretty high up."],
+];
+
+let schemaReady = null;
+
+async function ensureSchema(db) {
+  if (schemaReady) return schemaReady;
+  schemaReady = (async () => {
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS jokes (
+        id SERIAL PRIMARY KEY,
+        setup TEXT NOT NULL,
+        punchline TEXT NOT NULL,
+        submitter TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        reviewed_at TIMESTAMP
+      )
+    `;
+    await db.sql`CREATE INDEX IF NOT EXISTS jokes_status_idx ON jokes (status)`;
+
+    // Anyone under 13 is NEVER created in this table. That path stays the
+    // parent/guardian lead form on join.html, which creates no account and
+    // collects nothing about the child. COPPA — do not relax this.
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS members (
+        id SERIAL PRIMARY KEY,
+        account_type TEXT NOT NULL DEFAULT 'adult',
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
+        dob DATE,
+        town_or_county TEXT,
+        phone TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `;
+    await db.sql`CREATE UNIQUE INDEX IF NOT EXISTS members_email_idx ON members (lower(email))`;
+
+    // Email verification. Added after the table already existed on real
+    // sites, so these are ALTER ... IF NOT EXISTS rather than part of the
+    // CREATE TABLE above -- that keeps this safe to run against a database
+    // that already has members in it.
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS verify_token TEXT`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS verify_expires TIMESTAMP`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS verify_sent_at TIMESTAMP`;
+
+    // Forgot-password. Same pattern as email verification: a random token
+    // with an expiration, emailed as a link. Nobody can reset a password
+    // without proving they can read that inbox.
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS reset_token TEXT`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS reset_expires TIMESTAMP`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS reset_sent_at TIMESTAMP`;
+
+    // Premium scaffolding. Nothing sets these yet -- there is no live
+    // Stripe integration, so every member is premium=false today. These
+    // exist now so golden-nuggets.html's Premium tier (and anything else
+    // that needs to know "is this a paying member, and since when") has
+    // something real to read the moment billing actually goes live.
+    // premium_since is what the weekly Golden Nugget unlock counts from.
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT FALSE`;
+    await db.sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS premium_since TIMESTAMP`;
+
+    // A member's own catch log. Private to that member: never shown publicly,
+    // and never joined to anything that appears on the Lunker Board unless the
+    // member deliberately posts it there. No GPS is stored, ever -- the water
+    // is a name the member types in.
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS catches (
+        id SERIAL PRIMARY KEY,
+        member_id INTEGER NOT NULL,
+        species TEXT NOT NULL,
+        length_in NUMERIC,
+        weight_lb NUMERIC,
+        water TEXT,
+        caught_on DATE,
+        notes TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `;
+    await db.sql`CREATE INDEX IF NOT EXISTS catches_member_idx ON catches (member_id, caught_on DESC)`;
+
+    // Safety test passes. One row per pass, so a member who retakes it and does
+    // better has a history rather than an overwrite. A chapter leader can ask
+    // "is this kid certified" and get a real answer with a date on it.
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS safety_passes (
+        id SERIAL PRIMARY KEY,
+        member_id INTEGER NOT NULL,
+        score INTEGER NOT NULL,
+        total INTEGER NOT NULL,
+        passed_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `;
+    await db.sql`CREATE INDEX IF NOT EXISTS safety_member_idx ON safety_passes (member_id, passed_at DESC)`;
+
+    // Seed the starter jokes once, only if the bank is completely empty.
+    const existing = await db.sql`SELECT COUNT(*)::int AS n FROM jokes`;
+    if (!existing[0] || existing[0].n === 0) {
+      for (const [setup, punchline] of SEED_JOKES) {
+        await db.sql`
+          INSERT INTO jokes (setup, punchline, submitter, status, reviewed_at)
+          VALUES (${setup}, ${punchline}, 'FFN', 'approved', NOW())
+        `;
+      }
+    }
+  })().catch((err) => {
+    schemaReady = null; // let a later request try again
+    throw err;
+  });
+  return schemaReady;
+}
+
+// ---------------------------------------------------------------------
+// Small helpers
+// ---------------------------------------------------------------------
+function json(status, obj, extraHeaders) {
+  const headers = new Headers({ "content-type": "application/json" });
+  if (extraHeaders) for (const [k, v] of extraHeaders) headers.append(k, v);
+  return new Response(JSON.stringify(obj), { status, headers });
+}
+
+async function readJson(req) {
+  try {
+    return await req.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, stored) {
+  const [salt, hash] = (stored || "").split(":");
+  if (!salt || !hash) return false;
+  const check = crypto.scryptSync(password, salt, 64).toString("hex");
+  const a = Buffer.from(hash, "hex");
+  const b = Buffer.from(check, "hex");
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
+// ---------------------------------------------------------------------
+// Email verification. Proves a signup actually owns the address they
+// typed, not just that it is shaped like one. Sent through Gmail with an
+// app password (set GMAIL_USER and GMAIL_APP_PASSWORD in Netlify) -- not
+// a paid mail service, because the site does not need volume for this,
+// it needs one email per signup and the occasional resend.
+// ---------------------------------------------------------------------
+let mailer = null;
+async function getMailer() {
+  if (mailer) return mailer;
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!user || !pass) return null;
+  try {
+    const nodemailer = (await import("nodemailer")).default;
+    mailer = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+    return mailer;
+  } catch (err) {
+    console.error("FFN: nodemailer could not be loaded, mail is off:", err);
+    return null;
+  }
+}
+
+function newVerifyToken() {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+async function sendVerificationEmail(toEmail, toName, token) {
+  let transport = null;
+  try {
+    transport = await getMailer();
+  } catch (err) {
+    console.error("FFN: mail setup failed:", err);
+    return false;
+  }
+  if (!transport) {
+    // Do not throw -- a signup should still succeed even if mail is not
+    // configured yet. It just means nobody gets a verification email
+    // until GMAIL_USER / GMAIL_APP_PASSWORD are set.
+    console.error("FFN: GMAIL_USER / GMAIL_APP_PASSWORD not set, skipping verification email.");
+    return false;
+  }
+  const link = `https://fishingfriendsnetwork.com/verify-email.html?token=${token}`;
+  try {
+    await transport.sendMail({
+      from: `"Fishing Friends Network" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "Confirm your Fishing Friends Network account",
+      text:
+        `Hey ${toName || "there"},\n\n` +
+        `Click this link to confirm your account. It is good for 24 hours.\n\n${link}\n\n` +
+        `If you did not sign up for Fishing Friends Network, ignore this email and nothing will happen.\n\n` +
+        `Fishing Friends Network`,
+      html:
+        `<p>Hey ${toName ? toName.replace(/[<>&]/g, "") : "there"},</p>` +
+        `<p>Click below to confirm your account. This link is good for 24 hours.</p>` +
+        `<p><a href="${link}" style="background:#14314D;color:#fff;padding:12px 20px;border-radius:5px;text-decoration:none;display:inline-block;">Confirm My Account</a></p>` +
+        `<p style="color:#4A5560;font-size:.85rem;">If you did not sign up for Fishing Friends Network, ignore this email. Nothing happens until you click.</p>`,
+    });
+    return true;
+  } catch (err) {
+    console.error("FFN: verification email failed to send:", err);
+    return false;
+  }
+}
+
+async function sendResetEmail(toEmail, toName, token) {
+  let transport = null;
+  try {
+    transport = await getMailer();
+  } catch (err) {
+    console.error("FFN: mail setup failed:", err);
+    return false;
+  }
+  if (!transport) {
+    console.error("FFN: GMAIL_USER / GMAIL_APP_PASSWORD not set, skipping password reset email.");
+    return false;
+  }
+  const link = `https://fishingfriendsnetwork.com/reset-password.html?token=${token}`;
+  try {
+    await transport.sendMail({
+      from: `"Fishing Friends Network" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "Reset your Fishing Friends Network password",
+      text:
+        `Hey ${toName || "there"},\n\n` +
+        `Somebody asked to reset the password on this account. If that was you, click this link. It is good for one hour.\n\n${link}\n\n` +
+        `If you did not ask for this, ignore this email and nothing will change.\n\n` +
+        `Fishing Friends Network`,
+      html:
+        `<p>Hey ${toName ? toName.replace(/[<>&]/g, "") : "there"},</p>` +
+        `<p>Somebody asked to reset the password on this account. If that was you, click below. This link is good for one hour.</p>` +
+        `<p><a href="${link}" style="background:#14314D;color:#fff;padding:12px 20px;border-radius:5px;text-decoration:none;display:inline-block;">Reset My Password</a></p>` +
+        `<p style="color:#4A5560;font-size:.85rem;">If you did not ask for this, ignore this email. Nothing changes until you click.</p>`,
+    });
+    return true;
+  } catch (err) {
+    console.error("FFN: password reset email failed to send:", err);
+    return false;
+  }
+}
+
+async function handleForgotPassword(req, db) {
+  if (req.method !== "POST") return json(405, { error: "Method not allowed." });
+  const body = await readJson(req);
+  if (!body) return json(400, { error: "Bad request." });
+  const email = (body.email || "").toString().trim().toLowerCase();
+
+  // Same response whether or not the account exists -- otherwise this
+  // endpoint becomes a free way to check which emails have accounts.
+  const generic = { ok: true, message: "If an account exists for that email, a reset link is on its way." };
+  if (!email) return json(200, generic);
+
+  const rows = await db.sql`SELECT id, name, reset_sent_at FROM members WHERE lower(email) = ${email}`;
+  if (!rows.length) return json(200, generic);
+  const member = rows[0];
+
+  if (member.reset_sent_at && Date.now() - new Date(member.reset_sent_at).getTime() < 60 * 1000) {
+    // Still answer generically -- do not tell a stranger that this address
+    // just asked for a reset a moment ago.
+    return json(200, generic);
+  }
+
+  const token = newVerifyToken();
+  const expires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+  await db.sql`
+    UPDATE members SET reset_token = ${token}, reset_expires = ${expires}, reset_sent_at = NOW()
+    WHERE id = ${member.id}
+  `;
+  try {
+    await sendResetEmail(email, member.name, token);
+  } catch (err) {
+    console.error("FFN: password reset email blew up:", err);
+  }
+  return json(200, generic);
+}
+
+async function handleResetPassword(req, db) {
+  if (req.method !== "POST") return json(405, { error: "Method not allowed." });
+  const body = await readJson(req);
+  if (!body) return json(400, { error: "Bad request." });
+  const token = (body.token || "").toString().trim();
+  const password = (body.password || "").toString();
+
+  if (!token) return json(400, { error: "That link is missing its token." });
+  if (password.length < 8) return json(400, { error: "Password needs to be at least 8 characters." });
+
+  const rows = await db.sql`
+    SELECT id, name, account_type, reset_expires FROM members WHERE reset_token = ${token}
+  `;
+  if (!rows.length) return json(400, { error: "That link is not valid. Request a new one." });
+  const member = rows[0];
+  if (!member.reset_expires || new Date(member.reset_expires).getTime() < Date.now()) {
+    return json(400, { error: "That link has expired. Request a new one." });
+  }
+
+  const hash = hashPassword(password);
+  await db.sql`
+    UPDATE members SET password_hash = ${hash}, reset_token = NULL, reset_expires = NULL
+    WHERE id = ${member.id}
+  `;
+
+  // Log them straight in -- they just proved who they are by clicking an
+  // emailed link, no reason to make them type the new password twice.
+  return json(200, { ok: true, name: member.name, account_type: member.account_type }, [
+    ["set-cookie", buildSessionCookie(member.id)],
+  ]);
+}
+
+async function handleVerifyEmail(req, db) {
+  const url = new URL(req.url);
+  const token = (url.searchParams.get("token") || "").trim();
+  if (!token) return json(400, { error: "Missing token." });
+
+  const rows = await db.sql`
+    SELECT id, verify_expires FROM members WHERE verify_token = ${token}
+  `;
+  if (!rows.length) return json(400, { error: "That link is not valid. Request a new one." });
+
+  const row = rows[0];
+  if (!row.verify_expires || new Date(row.verify_expires).getTime() < Date.now()) {
+    return json(400, { error: "That link has expired. Request a new one." });
+  }
+
+  await db.sql`
+    UPDATE members SET email_verified = TRUE, verify_token = NULL, verify_expires = NULL
+    WHERE id = ${row.id}
+  `;
+  return json(200, { ok: true });
+}
+
+// A signed-in member can ask for a fresh link if the first one expired or
+// never arrived. Rate-limited to one send per 60 seconds per account so a
+// stuck retry button cannot hammer Gmail's sending limits.
+async function handleResendVerification(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in first." });
+  if (req.method !== "POST") return json(405, { error: "Method not allowed." });
+
+  const rows = await db.sql`
+    SELECT name, email, email_verified, verify_sent_at FROM members WHERE id = ${memberId}
+  `;
+  if (!rows.length) return json(404, { error: "Account not found." });
+  const member = rows[0];
+  if (member.email_verified) return json(200, { ok: true, already: true });
+
+  if (member.verify_sent_at && Date.now() - new Date(member.verify_sent_at).getTime() < 60 * 1000) {
+    return json(429, { error: "Give it a minute before asking again." });
+  }
+
+  const token = newVerifyToken();
+  const expires = new Date(Date.now() + 1000 * 60 * 60 * 24);
+  await db.sql`
+    UPDATE members SET verify_token = ${token}, verify_expires = ${expires}, verify_sent_at = NOW()
+    WHERE id = ${memberId}
+  `;
+  const sent = await sendVerificationEmail(member.email, member.name, token);
+  return json(200, { ok: true, sent });
+}
+
+function buildSessionCookie(id) {
+  const secret = process.env.FFN_SESSION_SECRET || "";
+  const exp = Date.now() + 1000 * 60 * 60 * 24 * 30; // 30 days
+  const payload = `${id}.${exp}`;
+  const sig = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  return `ffn_session=${payload}.${sig}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60 * 24 * 30}`;
+}
+
+function parseCookies(header) {
+  const out = {};
+  (header || "").split(";").forEach((p) => {
+    const idx = p.indexOf("=");
+    if (idx === -1) return;
+    out[p.slice(0, idx).trim()] = decodeURIComponent(p.slice(idx + 1).trim());
+  });
+  return out;
+}
+
+function verifySession(cookieVal) {
+  const secret = process.env.FFN_SESSION_SECRET || "";
+  if (!cookieVal || !secret) return null;
+  const parts = cookieVal.split(".");
+  if (parts.length !== 3) return null;
+  const [id, exp, sig] = parts;
+  const expected = crypto.createHmac("sha256", secret).update(`${id}.${exp}`).digest("hex");
+  const a = Buffer.from(expected);
+  const b = Buffer.from(sig);
+  if (a.length !== b.length) return null;
+  if (!crypto.timingSafeEqual(a, b)) return null;
+  if (Date.now() > parseInt(exp, 10)) return null;
+  const idNum = parseInt(id, 10);
+  return isNaN(idNum) ? null : idNum;
+}
+
+function ageFrom(dobStr) {
+  const d = new Date(dobStr);
+  if (isNaN(d.getTime())) return null;
+  const t = new Date();
+  let a = t.getFullYear() - d.getFullYear();
+  const m = t.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && t.getDate() < d.getDate())) a--;
+  return a;
+}
+
+function isoWeek(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return Math.ceil(((t - yearStart) / 86400000 + 1) / 7);
+}
+
+function rotationIndex(period, len) {
+  if (len === 0) return 0;
+  const now = new Date();
+  return (period === "week" ? isoWeek(now) : now.getDate()) % len;
+}
+
+// ---------------------------------------------------------------------
+// Endpoint handlers
+// ---------------------------------------------------------------------
+async function handleJokes(req, db) {
+  if (req.method !== "GET") return new Response("Method not allowed", { status: 405 });
+  const rows = await db.sql`
+    SELECT id, setup, punchline FROM jokes WHERE status = 'approved' ORDER BY id ASC
+  `;
+  const idx = rotationIndex(ROTATION_PERIOD, rows.length);
+  return json(200, {
+    period: ROTATION_PERIOD,
+    featured: rows.length ? rows[idx] : null,
+    bank: rows,
+    total: rows.length,
+  });
+}
+
+const MAX_LEN = 300;
+
+async function handleSubmitJoke(req, db) {
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+  const body = await readJson(req);
+  if (!body) return json(400, { error: "Bad request." });
+
+  const setup = (body.setup || "").toString().trim();
+  const punchline = (body.punchline || "").toString().trim();
+  const submitter = (body.submitter || "").toString().trim().slice(0, 100);
+
+  if (!setup || !punchline || setup.length > MAX_LEN || punchline.length > MAX_LEN) {
+    return json(400, { error: "A setup and a punchline are both required." });
+  }
+  // Honeypot: bots fill hidden fields, people don't. Pretend it worked.
+  if (body.jbotfield) return json(200, { ok: true });
+
+  await db.sql`
+    INSERT INTO jokes (setup, punchline, submitter, status)
+    VALUES (${setup}, ${punchline}, ${submitter || null}, 'pending')
+  `;
+  return json(200, { ok: true });
+}
+
+async function handleAdminJokes(req, db) {
+  const adminKey = process.env.FFN_ADMIN_KEY;
+  const supplied = req.headers.get("x-admin-key") || "";
+  if (!adminKey || supplied !== adminKey) {
+    return json(401, { error: "Not authorized." });
+  }
+
+  if (req.method === "GET") {
+    const rows = await db.sql`
+      SELECT id, setup, punchline, submitter, created_at
+      FROM jokes WHERE status = 'pending' ORDER BY created_at ASC
+    `;
+    return json(200, { pending: rows });
+  }
+
+  if (req.method === "POST") {
+    const body = await readJson(req);
+    if (!body) return json(400, { error: "Bad request." });
+    const id = parseInt(body.id, 10);
+    const action = body.action;
+    if (!id || !["approve", "reject"].includes(action)) {
+      return json(400, { error: "Need an id and approve/reject." });
+    }
+    const status = action === "approve" ? "approved" : "rejected";
+    await db.sql`UPDATE jokes SET status = ${status}, reviewed_at = NOW() WHERE id = ${id}`;
+    return json(200, { ok: true });
+  }
+
+  return new Response("Method not allowed", { status: 405 });
+}
+
+async function handleSignup(req, db) {
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+  const body = await readJson(req);
+  if (!body) return json(400, { error: "Bad request." });
+
+  const name = (body.name || "").toString().trim().slice(0, 100);
+  const email = (body.email || "").toString().trim().toLowerCase().slice(0, 200);
+  const password = (body.password || "").toString();
+  const dob = (body.dob || "").toString();
+  const area = (body.area || "").toString().trim().slice(0, 100);
+  const phone = (body.phone || "").toString().trim().slice(0, 40);
+  const accountType = body.account_type === "youth" ? "youth" : "adult";
+
+  if (!name || !email || !password) {
+    return json(400, { error: "Name, email, and password are all required." });
+  }
+  if (password.length < 8) {
+    return json(400, { error: "Password needs to be at least 8 characters." });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json(400, { error: "That email does not look right." });
+  }
+
+  // Server-side age check. The browser's age gate on join.html can be
+  // bypassed; this cannot. Never relax it.
+  if (dob) {
+    const age = ageFrom(dob);
+    if (age !== null && age < 13) {
+      return json(403, {
+        error:
+          "Accounts for anyone under 13 are not created this way. Use the parent/guardian form on the Join page instead.",
+      });
+    }
+  }
+
+  const existing = await db.sql`SELECT id FROM members WHERE lower(email) = ${email}`;
+  if (existing.length) {
+    return json(409, { error: "An account already exists for that email. Try logging in instead." });
+  }
+
+  const hash = hashPassword(password);
+  const token = newVerifyToken();
+  const expires = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
+
+  const rows = await db.sql`
+    INSERT INTO members (account_type, name, email, password_hash, dob, town_or_county, phone, verify_token, verify_expires, verify_sent_at)
+    VALUES (${accountType}, ${name}, ${email}, ${hash}, ${dob || null}, ${area || null}, ${phone || null}, ${token}, ${expires}, NOW())
+    RETURNING id, name, account_type
+  `;
+  const member = rows[0];
+
+  // The account exists and the member is logged in right away -- verifying
+  // an email proves they own the address, it does not gate the free site.
+  // If the email fails to send, signup still succeeds; sent:false tells
+  // the page to say so instead of promising an email that never left.
+  // The account row is already saved by this point. Mail is a nice-to-have
+  // on top of that, so nothing it does may be allowed to throw.
+  let sent = false;
+  try {
+    sent = await sendVerificationEmail(email, name, token);
+  } catch (err) {
+    console.error("FFN: verification email blew up, account still created:", err);
+  }
+
+  return json(200, { ok: true, name: member.name, account_type: member.account_type, verification_sent: sent }, [
+    ["set-cookie", buildSessionCookie(member.id)],
+  ]);
+}
+
+async function handleLogin(req, db) {
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+  const body = await readJson(req);
+  if (!body) return json(400, { error: "Bad request." });
+
+  const email = (body.email || "").toString().trim().toLowerCase();
+  const password = (body.password || "").toString();
+  if (!email || !password) return json(400, { error: "Email and password are both required." });
+
+  const rows = await db.sql`
+    SELECT id, name, account_type, password_hash FROM members WHERE lower(email) = ${email}
+  `;
+  const member = rows[0];
+  // Same message either way, so a wrong guess can't reveal whether the
+  // email exists.
+  if (!member || !verifyPassword(password, member.password_hash)) {
+    return json(401, { error: "Email or password did not match." });
+  }
+  return json(200, { ok: true, name: member.name, account_type: member.account_type }, [
+    ["set-cookie", buildSessionCookie(member.id)],
+  ]);
+}
+
+function handleLogout() {
+  return json(200, { ok: true }, [
+    ["set-cookie", "ffn_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0"],
+  ]);
+}
+
+function memberIdFrom(req) {
+  return verifySession(parseCookies(req.headers.get("cookie")).ffn_session);
+}
+
+function num(v, max) {
+  if (v === undefined || v === null || v === "") return null;
+  const n = parseFloat(v);
+  if (isNaN(n) || n < 0 || n > max) return null;
+  return n;
+}
+
+// Records a passing safety test. The score is re-checked here rather than
+// trusted from the browser, because anything the page sends can be faked --
+// a certification that a kid can grant themselves is worth nothing to the
+// parent or the chapter leader relying on it.
+const SAFETY_TOTAL = 10;
+const SAFETY_PASS_MARK = 8;
+
+async function handleSafetyPass(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in to record your safety test." });
+  if (req.method !== "POST") return json(405, { error: "Method not allowed." });
+
+  const body = await readJson(req);
+  if (!body) return json(400, { error: "Bad request." });
+
+  const score = parseInt(body.score, 10);
+  const total = parseInt(body.total, 10);
+  if (isNaN(score) || isNaN(total)) return json(400, { error: "Bad score." });
+  if (total !== SAFETY_TOTAL) return json(400, { error: "Bad score." });
+  if (score < 0 || score > total) return json(400, { error: "Bad score." });
+  if (score < SAFETY_PASS_MARK) return json(400, { error: "That is not a passing score." });
+
+  await db.sql`
+    INSERT INTO safety_passes (member_id, score, total)
+    VALUES (${memberId}, ${score}, ${total})
+  `;
+  return json(200, { ok: true, certified: true });
+}
+
+// Whether a member is safety certified, and when they passed. Used by the
+// member's own pages now, and by chapter leaders before an outing later.
+async function handleSafetyStatus(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(200, { certified: false });
+  const rows = await db.sql`
+    SELECT score, total, passed_at FROM safety_passes
+    WHERE member_id = ${memberId}
+    ORDER BY passed_at DESC LIMIT 1
+  `;
+  if (!rows.length) return json(200, { certified: false });
+  return json(200, { certified: true, ...rows[0] });
+}
+
+// A member's own catch log. Free for every member -- this is not a paid
+// feature. It is deliberately private: a member sees only their own rows.
+async function handleCatches(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in to use your catch log." });
+
+  if (req.method === "GET") {
+    const rows = await db.sql`
+      SELECT id, species, length_in, weight_lb, water, caught_on, notes
+      FROM catches WHERE member_id = ${memberId}
+      ORDER BY caught_on DESC NULLS LAST, id DESC
+    `;
+    // Personal bests, worked out here so every page shows the same numbers.
+    const bests = {};
+    for (const r of rows) {
+      const key = (r.species || "").trim().toLowerCase();
+      if (!key) continue;
+      const b = bests[key] || (bests[key] = { species: r.species, count: 0, length_in: null, weight_lb: null });
+      b.count++;
+      if (r.length_in !== null && (b.length_in === null || Number(r.length_in) > Number(b.length_in))) b.length_in = r.length_in;
+      if (r.weight_lb !== null && (b.weight_lb === null || Number(r.weight_lb) > Number(b.weight_lb))) b.weight_lb = r.weight_lb;
+    }
+    const bestList = Object.values(bests).sort((a, b) => b.count - a.count);
+    return json(200, { catches: rows, bests: bestList, total: rows.length });
+  }
+
+  if (req.method === "POST") {
+    const body = await readJson(req);
+    if (!body) return json(400, { error: "Bad request." });
+    const species = (body.species || "").toString().trim().slice(0, 60);
+    if (!species) return json(400, { error: "What did you catch? Species is the one thing we need." });
+    const length_in = num(body.length_in, 200);
+    const weight_lb = num(body.weight_lb, 2000);
+    const water = (body.water || "").toString().trim().slice(0, 120) || null;
+    const notes = (body.notes || "").toString().trim().slice(0, 500) || null;
+    let caught_on = (body.caught_on || "").toString().trim();
+    if (caught_on && isNaN(new Date(caught_on).getTime())) caught_on = "";
+
+    const rows = await db.sql`
+      INSERT INTO catches (member_id, species, length_in, weight_lb, water, caught_on, notes)
+      VALUES (${memberId}, ${species}, ${length_in}, ${weight_lb}, ${water}, ${caught_on || null}, ${notes})
+      RETURNING id, species, length_in, weight_lb, water, caught_on, notes
+    `;
+    return json(200, { ok: true, entry: rows[0] });
+  }
+
+  return new Response("Method not allowed", { status: 405 });
+}
+
+// Deleting is scoped to the owner in the SQL itself, so a member can never
+// delete somebody else's row by guessing an id.
+async function handleDeleteCatch(req, db) {
+  const memberId = memberIdFrom(req);
+  if (!memberId) return json(401, { error: "Log in first." });
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+  const body = await readJson(req);
+  const id = parseInt(body && body.id, 10);
+  if (!id) return json(400, { error: "Which entry?" });
+  await db.sql`DELETE FROM catches WHERE id = ${id} AND member_id = ${memberId}`;
+  return json(200, { ok: true });
+}
+
+async function handleWhoami(req, db) {
+  const cookies = parseCookies(req.headers.get("cookie"));
+  const memberId = verifySession(cookies.ffn_session);
+  if (!memberId) return json(200, { member: false });
+  const rows = await db.sql`SELECT id, name, account_type, email_verified, premium, premium_since FROM members WHERE id = ${memberId}`;
+  if (!rows.length) return json(200, { member: false });
+  // account_type ('youth' or 'adult') is used to pick between the kid-friendly
+  // and adult wording of each Golden Nugget. premium/premium_since are
+  // scaffolding for now (nothing sets premium=true yet, there is no live
+  // Stripe integration) -- golden-nuggets.html uses them to gate the
+  // free-member vs. Premium tiers and, once real, the weekly unlock.
+  return json(200, {
+    member: true,
+    name: rows[0].name,
+    account_type: rows[0].account_type,
+    email_verified: !!rows[0].email_verified,
+    premium: !!rows[0].premium,
+    premium_since: rows[0].premium_since,
+  });
+}
+
+// ---------------------------------------------------------------------
+// Router
+// ---------------------------------------------------------------------
+export default async (req) => {
+  const path = new URL(req.url).pathname.replace(/\/+$/, "");
+  const action = path.split("/").pop();
+
+  // Logout needs no database at all — sessions are signed cookies, not rows.
+  if (action === "logout") return handleLogout();
+
+  let db;
+  try {
+    db = getDatabase();
+    await ensureSchema(db);
+  } catch (err) {
+    console.error("FFN database unavailable:", err);
+    // whoami must never break a page; it just answers "not logged in".
+    if (action === "whoami") return json(200, { member: false });
+    return json(500, { error: "The site's database is not reachable right now." });
+  }
+
+  try {
+    switch (action) {
+      case "jokes":
+        return await handleJokes(req, db);
+      case "submit-joke":
+        return await handleSubmitJoke(req, db);
+      case "admin-jokes":
+        return await handleAdminJokes(req, db);
+      case "signup":
+        return await handleSignup(req, db);
+      case "login":
+        return await handleLogin(req, db);
+      case "forgot-password":
+        return await handleForgotPassword(req, db);
+      case "reset-password":
+        return await handleResetPassword(req, db);
+      case "catches":
+        return await handleCatches(req, db);
+      case "delete-catch":
+        return await handleDeleteCatch(req, db);
+      case "safety-pass":
+        return await handleSafetyPass(req, db);
+      case "safety-status":
+        return await handleSafetyStatus(req, db);
+      case "verify-email":
+        return await handleVerifyEmail(req, db);
+      case "resend-verification":
+        return await handleResendVerification(req, db);
+      case "whoami":
+        return await handleWhoami(req, db);
+      default:
+        return json(404, { error: "No such endpoint." });
+    }
+  } catch (err) {
+    console.error(`FFN /api/${action} error:`, err);
+    if (action === "whoami") return json(200, { member: false }); // fail closed, never break a page
+    return json(500, { error: "Something went wrong on our end. Try again in a bit." });
+  }
+};
